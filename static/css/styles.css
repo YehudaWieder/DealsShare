@@ -1,0 +1,480 @@
+
+
+
+/* ------------------------
+   General Reset
+------------------------- */
+:root {
+  --main-color: #FFEB00;
+  --hover-button-color: #E6D500;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ------------------------
+   Header / Top Menu
+------------------------- */
+/* Header */
+header {
+    background-color: var(--main-color);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header .logo {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Header right */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* bar button */
+.bar-button {
+    display: inline-block;
+    background-color: var(--main-color);
+    border: 1px solid #000;
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.bar-button:hover {
+    background-color: var(--hover-button-color);
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.bar-icon {
+    color: #000;
+    width: 30px;
+    height: 30px;
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-width: 140px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.profile-menu:hover .dropdown {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Links inside dropdown */
+.dropdown a {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.dropdown a:hover {
+    background-color: var(--main-color);
+    border-radius: 8px;
+}
+
+/* ------------------------
+   message banner
+------------------------- */
+.message-banner {
+  color: #222;
+  margin: 30px auto;
+  text-align: center;
+  font-weight: 500;
+  min-width: 500px;
+  max-width: 900px;
+}
+
+.message-banner h1, h2, h3 {
+    margin: 10px;
+}
+
+/* ------------------------
+   Buttons
+------------------------- */
+.unstyled-button, .unstyled-button:hover {
+    all: unset;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+button, .btn {
+    width: 100%;
+    background-color: var(--main-color);
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--hover-button-color);
+}
+
+/* ------------------------
+   Custom Popup
+------------------------- */
+.popup {
+    position: fixed; 
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 2000;
+    opacity: 0; 
+    visibility: hidden; 
+    pointer-events: none;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.popup.show {
+    opacity: 1; 
+    visibility: visible; 
+    pointer-events: auto;
+}
+
+.popup-content {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    text-align: center;
+    min-width: 400px; 
+    max-width: 650px;
+    border-top: 5px solid var(--main-color);
+    transform: translateY(-20px);
+    transition: transform 0.6s ease;
+}
+.popup.show .popup-content { transform: translateY(0); }
+
+.popup-content p {
+    margin: 15px 0;
+    font-size: 1.1em;
+    color: #333;
+    font-weight: 500;
+}
+
+
+/* ------------------------
+   Product users & dashboard card
+------------------------- */
+.product-card, .user-card, .dashboard-card {
+    position: relative;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    width: 250px;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-card, .dashboard-card {
+    height: 190px !important;
+    text-align: center;
+}
+
+.product-card:hover, .user-card:hover, .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.product-card img {
+    display: block;
+    width: 100%;
+    max-height: 170px;
+    object-fit: cover;
+}
+
+.product-card .product-icons, .user-card .user-icons {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 2;  
+}
+
+.product-card .product-icon, .user-card .user-icon {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    background: rgba(255,255,255,0.92);
+    color: #000;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 30%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    cursor: pointer;
+    transition: transform .15s ease, background .2s ease, color .2s ease;
+}
+
+.dashboard-icon {
+    color: var(--main-color);
+    width: 48px;
+    height: 48px;
+    margin: 15px auto;
+}
+
+.product-card .product-icon:hover, .user-card .user-icon:hover {
+    background: var(--main-color);
+    color: #000;
+    transform: translateY(-1px);
+}
+
+.product-card .product-info, .user-card .user-info, .dashboard-card .dashboard-info {
+    padding: 0px 15px 15px 15px;
+    border-top: 4px solid var(--main-color); /* Highlight top of info */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex: 1;
+}
+
+.product-card .product-info h3, .user-card .user-info h3, .dashboard-card .dashboard-info h3{
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.product-card .product-info p, .user-card .user-info p, .dashboard-card .dashboard-info p {
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.product-card .product-info .discount_price {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #000;
+}
+
+.regular_price {
+text-decoration: line-through;
+color: gray;
+}
+
+/* ------------------------
+   Form Elements
+------------------------- */
+.unstyled-form {
+    all: unset;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+form {
+    width: 550px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border-radius: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+input[type="file"],
+textarea,
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border 0.3s, box-shadow 0.3s;
+    background-color: #fff;
+}
+
+input[type="file"] {
+    cursor: pointer;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-wrapper .currency {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 500;
+    color: #555;
+    pointer-events: none;
+}
+
+.input-wrapper .price-input {
+    width: 100%;
+    padding: 12px 35px 12px 15px; /* padding-right למיקום ה-$ */
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.input-wrapper .price-input:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 6px rgba(255, 235, 0, 0.4);
+    outline: none;
+}
+
+/* Focus effect */
+input:focus,
+textarea:focus,
+select:focus,
+input[type="file"]:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 6px rgba(255, 235, 0, 0.4);
+    outline: none;
+}
+
+/* Hover effect */
+input[type="file"]:hover {
+    border-color: var(--input-focus-border);
+}
+
+
+/* ------------------------
+   Footer
+------------------------- */
+footer {
+    background-color: #222;
+    color: #fff;
+    padding: 20px 30px;
+    text-align: center;
+}
+
+/* ------------------------
+   Layout Helpers
+------------------------- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-container {
+    min-width: 400px;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 2px;
+    margin-bottom: 10px;
+}
+
+#load-more {
+    width: 150px;
+    margin: 20px auto;
+}
+
+#profile-banner {
+    padding: 30px;
+    background: rgba(255,235,0,0.15);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+#profile-banner-icon {
+    width: 54px;
+    height: 54px;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+#manage-profile-btns {
+    margin: 0px !important;
+}

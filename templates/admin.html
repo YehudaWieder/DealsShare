@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealsShare - Admin dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Header / Top Menu -->
+    <header>
+        <a href="{{ url_for('home') }}">
+            <div class="logo">DealsShare</div>
+        </a>
+
+        <div class="header-right">
+            <a href="{{ url_for('home') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-house-door bar-icon" viewBox="0 0 16 16">
+                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
+                </svg>
+            </a>
+
+            <a href="{{ url_for('add_product') }}">
+                <button class="bar-button">Share Product</button>
+            </a>
+
+            <div class="profile-menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                </svg>
+
+                <div class="dropdown">
+                    <a href="{{ url_for('profile') }}">My Profile</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+        <div class="btn-container">
+            <a href="{{ url_for('users') }}">
+                <button class="btn">Manage users</button>
+            </a>
+
+            <a href="{{ url_for('products') }}">
+                <button class="btn">Manage products</button>
+            </a>
+        </div>
+
+    <main class="container">
+        
+        <div class="dashboard-card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill dashboard-icon" viewBox="0 0 16 16">
+                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+            </svg>
+            <div class="dashboard-info">
+                <h1>{{ num_users }}</h1>
+                <p>Users</p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bag-fill dashboard-icon" viewBox="0 0 16 16">
+                <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4z"/>
+            </svg>
+            <div class="dashboard-info">
+                <h1>{{ num_products }}</h1>
+                <p>Deals</p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg dashboard-icon" viewBox="0 0 16 16">
+                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>
+                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/>
+            </svg>
+            <div class="dashboard-info">
+                <h1>{{ num_clicks }}</h1>
+                <p>Deal clicks</p>
+            </div>
+        </div>
+            
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 DealsShare. All Rights Reserved.
+    </footer>
+</body>
+</html>

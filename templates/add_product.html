@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealsShare - Add product</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</head>
+<body data-message="{{ message }}">
+    <!-- Header / Top Menu -->
+    <header>
+        <a href="{{ url_for('home') }}">
+            <div class="logo">DealsShare</div>
+        </a>
+
+        <div class="header-right">
+            <a href="{{ url_for('home') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-house-door bar-icon" viewBox="0 0 16 16">
+                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
+                </svg>
+            </a>
+
+            <a href="{{ url_for('add_product') }}">
+                <button class="bar-button">Share Product</button>
+            </a>
+
+            <div class="profile-menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                </svg>
+
+                <div class="dropdown">
+                    <a href="{{ url_for('profile') }}">My Profile</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="message-banner">
+            <h1>Add new product</h1>
+            <p></p>
+        </div>
+
+        <!-- form container -->
+        <div class="container">
+            <form action="/add_product" method="POST" enctype="multipart/form-data" class="product-form">
+                <label for="name">Product Name</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" ></textarea>
+
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="books">Books</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="home">Home & Kitchen</option>
+                    <option value="toys">Toys</option>
+                </select>
+
+                <label for="image">Product Image</label>
+                <input type="file" id="image" name="image" accept="image/*" >
+
+                <label for="regular_price">Regular Price</label>
+                <div class="input-wrapper">
+                    <span class="currency">$</span>
+                    <input type="number" id="regular_price" name="regular_price" step="0.01" required>
+                </div>
+
+                <label for="discount_price">Sale Price</label>
+                <div class="input-wrapper">
+                    <span class="currency">$</span>
+                    <input type="number" id="discount_price" name="discount_price" step="0.01" required>
+                </div>
+
+                <label for="deal_expiry">Sale Expiry Date</label>
+                <input type="date" id="deal_expiry" name="deal_expiry" required>
+
+                <label for="link">Product Link</label>
+                <input type="url" id="link" name="link" required>
+
+                <button type="submit" class="btn">Share product</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- popup container -->
+    <div id="custom-popup" class="popup hidden">
+        <div class="popup-content">
+            <p id="popup-message"></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 DealsShare. All Rights Reserved.
+    </footer>
+</body>
+</html>
