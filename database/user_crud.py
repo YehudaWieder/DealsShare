@@ -1,8 +1,6 @@
 import sqlite3
 
 from config import DB_PATH
-# DB_PATH = "database/deals.db"
-
 
 # --- Utility ---
 def run_query(query, params=(), fetch=False):
@@ -10,11 +8,13 @@ def run_query(query, params=(), fetch=False):
     Execute a SQL query with optional parameters and optional fetch.
     """
     with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         cursor.execute(query, params)
+        conn.commit()
+        
         if fetch:
             return cursor.fetchall()
-        conn.commit()
         return None
 
 # --- CRUD Functions ---
@@ -22,10 +22,8 @@ def create_user(username, email, password, role):
     """
     Insert a new user into the database.
     """
-    print("saving user")
     query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)"
     run_query(query, (username, email, password, role))
-    print("user saved")
     return True
 
 def find_user(email):

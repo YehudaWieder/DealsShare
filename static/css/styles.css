@@ -357,6 +357,7 @@ select {
     font-size: 1em;
     transition: border 0.3s, box-shadow 0.3s;
     background-color: #fff;
+    resize: none;
 }
 
 input[type="file"] {
@@ -414,6 +415,36 @@ input[type="file"]:hover {
     border-color: var(--input-focus-border);
 }
 
+/* ------------------------
+   Pagination
+------------------------- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.pagination a {
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination a:hover {
+    background-color: #ffeb00;
+}
+
+.pagination .current-page {
+    padding: 8px 12px;
+    background-color: #ffeb00;
+    border-radius: 5px;
+    font-weight: bold;
+    color: #000;
+}
 
 /* ------------------------
    Footer

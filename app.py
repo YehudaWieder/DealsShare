@@ -1,26 +1,38 @@
+from math import ceil
+import os
 from threading import Timer
+import time
 import webbrowser
 from flask import Flask, render_template, request, redirect, session, url_for
 
 from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
+from routes.product_routes import delete_product_by_id, insert_new_product
 from routes.user_routes import delete_profile, edit_profile_details
-from routes.product_routes import insert_new_product
 from database.user_crud import count_users, get_all_users, get_user
-from database.product_crud import count_products, get_product, get_products
+from database.product_crud import count_products, count_user_products, get_product, get_products, get_user_products
 
-from config import secret_key
+from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH
+
+if not os.path.exists(DB_PATH):
+    import database.db_setup
+    database.db_setup.create_tables()
+    
+    import database.seed_data
+    Timer(0.2, database.seed_data.seed_data).start()
+    time.sleep(3)
+    
 
 app = Flask(__name__)
 
-app.secret_key = secret_key
+app.secret_key = SECRET_KEY
 app.config['SESSION_PERMANENT'] = False
 
 """ ------------------------
    Products routes
 ------------------------- """
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def home():
     """
     Render home page
@@ -30,12 +42,15 @@ def home():
     user_id = session.get("user_id")
     user = get_user(user_id)
     
-    offset = 0
-    if request.method == 'POST':
-        offset += 12
-    products = get_products(offset)
+    page = int(request.args.get("page", 1))
+    offset = (page - 1) * PRODUCTS_PER_PAGE
     
-    return render_template('home.html', message=msg, products=products, user=user)
+    products = get_products(offset=offset, limit=PRODUCTS_PER_PAGE)
+    
+    total_count = count_products()
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+    
+    return render_template('home.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
 
 
 @app.route('/product/<int:product_id>')
@@ -47,11 +62,11 @@ def product(product_id):
     
     product = get_product(product_id)
 
-    return render_template('product.html', product_id=product_id, message=msg, product=product)
+    return render_template('product.html', message=msg, product=product)
 
 
-@app.route('/edit_product', methods=['GET', 'POST'])
-def edit_product():
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
     """
     Render user's personal edit product page
     """
@@ -60,7 +75,23 @@ def edit_product():
     
     msg = request.args.get("message")
     
-    return render_template('edit_product.html', message=msg)
+    user = get_user(session.get("user_id"))
+    product = get_product(product_id)
+    
+    if product["user_id"] != session.get("user_id") and user["role"] != "admin":
+        return redirect(url_for('home', message="You are not authorized to edit this product"))
+    
+    if request.method == 'POST':
+        form_data = request.form
+        file = request.files.get("image")
+
+        result = insert_new_product(form_data, file, user["user_id"], product_id=product_id)
+        if result["success"]:
+            return redirect(url_for('product', product_id=product_id, message=result["message"]))
+        else:
+            return render_template('edit_product.html', message=result["message"], product=product)
+    
+    return render_template('edit_product.html', message=msg, product=product)
 
 
 @app.route('/add_product', methods=['GET', 'POST'])
@@ -82,7 +113,7 @@ def add_product():
         if result["success"]:
             return redirect(url_for('product', product_id=result["product_id"], message=result["message"]))
         else:
-            return result["message"]
+            return render_template('add_product.html', message=result["message"])
     return render_template('add_product.html', message=msg)
 
 """ ------------------------
@@ -140,15 +171,30 @@ def profile():
     msg = request.args.get("message")    
     user_id = session.get("user_id")
     user = get_user(user_id)
-
-    if request.method == 'POST':
-        result = delete_profile(request.form)
-        if result["success"]:
-            session.clear()
-            return redirect(url_for('home', message=result["message"]))
-        return render_template('profile.html', message=result["message"], user=user)
     
-    return render_template('profile.html', message=msg, user=user)
+    page = int(request.args.get("page", 1))
+    offset = (page - 1) * PRODUCTS_PER_PAGE
+    
+    products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_id=user_id)
+    
+    total_count = count_user_products(user_id)
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+    
+    if request.method == 'POST':
+        which_form = request.form.get('submit_button')
+        
+        if which_form == 'delete profile':
+            result = delete_profile(request.form)
+            if result["success"]:
+                session.clear()
+                return redirect(url_for('home', message=result["message"]))
+            return render_template('profile.html', products=products, message=result["message"], total_pages=total_pages, user=user)
+        
+        elif which_form == 'delete product':
+            result = delete_product_by_id(request.form)
+            return render_template('profile.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
+        
+    return render_template('profile.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -232,8 +278,18 @@ def products():
     result = is_user_admin(user_id)
     if not result["success"]:
             return redirect(url_for('login', message=result["message"]))
+        
+    msg = request.args.get("message")
     
-    return render_template('products.html')
+    page = int(request.args.get("page", 1))
+    offset = (page - 1) * PRODUCTS_PER_PAGE
+    
+    products = get_products(offset=offset, limit=PRODUCTS_PER_PAGE)
+    
+    total_count = count_products()
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+    
+    return render_template('products.html', message=msg, products=products, page=page, total_pages=total_pages)
 
 
 @app.route('/edit_user', methods=['GET', 'POST'])

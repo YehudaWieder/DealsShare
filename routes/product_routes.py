@@ -3,7 +3,7 @@ from PIL import Image
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import config
-from database.product_crud import create_product
+from database.product_crud import create_product, delete_product, get_product, update_product
 
 # Folder to save uploaded images
 UPLOAD_FOLDER = config.UPLOAD_FOLDER
@@ -73,7 +73,10 @@ def insert_new_product(form_data, file, user_id) -> dict:
     link = form_data.get("link")
 
     # Handle image upload
-    image_url = save_and_resize_image(file)
+    if isinstance(file, str) and file:
+        image_url = file
+    else:
+        image_url = save_and_resize_image(file)
     if not image_url:
         return {"success": False, "message": "Invalid image."}
 
@@ -91,3 +94,24 @@ def insert_new_product(form_data, file, user_id) -> dict:
     )
 
     return {"success": True, "message": "Product added successfully.", "product_id": product_id}
+
+
+def delete_product_by_id(form_data) -> dict:
+    """
+    Main function to delete an existing product by ID.
+    Returns a dictionary with success status and message.
+    """
+    product_id = form_data.get("product_id")
+
+    # Check if the product exists in DB
+    existing_product = get_product(product_id)
+    if not existing_product:
+        return {"success": False, "message": "Product not found."}
+
+    # Delete product from DB
+    try:
+        delete_product(product_id)
+        return {"success": True, "message": "Product deleted successfully."}
+    except Exception as e:
+        return {"success": False, "message": f"Error while deleting product: {str(e)}"}
+

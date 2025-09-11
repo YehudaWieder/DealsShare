@@ -56,8 +56,8 @@
             <div class="product-info">
                 <h3>{{ product["name"] }}</h3>
                 <p>{{ product["description"] }}</p>
-                <p class="regular_price">{{ product["regular_price"] }}</p>
-                <p class="price">{{ product["discount_price"] }}</p>
+                <p class="regular_price">$ {{ product["regular_price"] }}</p>
+                <p class="price">$ {{ product["discount_price"] }}</p>
                 <h6>Deal expires on: {{ product["deal_expiry"] }}</h6>
                 <a href="{{ product["product_link"] }}" target="_blank" rel="noopener noreferrer">
                     <button class="btn">Buy Now</button>

@@ -1,18 +1,20 @@
 import sqlite3
 
-from config import DB_PATH
+from config import DB_PATH, PRODUCTS_PER_PAGE
 
 # --- Utility ---
 def run_query(query, params=(), fetch=False, return_lastrowid=False):
     """Execute a SQL query with optional parameters and optional fetch."""
     with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         cursor.execute(query, params)
+        conn.commit()
+
         if fetch:
             return cursor.fetchall()
         if return_lastrowid:
             return cursor.lastrowid
-        conn.commit()
         return None
 
 # --- CRUD Functions ---
@@ -29,23 +31,30 @@ def create_product(user_id, name, description, category, image_url, regular_pric
 def get_product(product_id):
     """Retrieve a single product by ID."""
     query = """
-        SELECT id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link
+        SELECT user_id, id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link
         FROM products WHERE id = ?
     """
     result = run_query(query, (product_id,), fetch=True)
     if result:
         row = result[0]
         return {
-            "id": row[0], "name": row[1], "description": row[2], "category": row[3],
-            "image_url": row[4], "regular_price": row[5], "discount_price": row[6],
-            "deal_expiry": row[7], "product_link": row[8]
+            "user_id": row[0], 
+            "id": row[1], 
+            "name": row[2], 
+            "description": row[3], 
+            "category": row[4],
+            "image_url": row[5], 
+            "regular_price": row[6], 
+            "discount_price": row[7],
+            "deal_expiry": row[8], 
+            "product_link": row[9]
         }
     return None
 
-def get_products(offset=0, limit=12):
+def get_products(offset=0, limit=PRODUCTS_PER_PAGE):
     """Retrieve a range of products with all fields."""
     query = """
-        SELECT id, name, description, category, image_url,
+        SELECT user_id, id, name, description, category, image_url,
                regular_price, discount_price, deal_expiry, link
         FROM products
         LIMIT ? OFFSET ?
@@ -53,20 +62,47 @@ def get_products(offset=0, limit=12):
     result = run_query(query, (limit, offset), fetch=True)
     return [
         {
-            "id": row[0],
-            "name": row[1],
-            "description": row[2],
-            "category": row[3],
-            "image_url": row[4],
-            "regular_price": row[5],
-            "discount_price": row[6],
-            "deal_expiry": row[7],
-            "product_link": row[8]
+            "user_id": row[0], 
+            "id": row[1], 
+            "name": row[2], 
+            "description": row[3], 
+            "category": row[4],
+            "image_url": row[5], 
+            "regular_price": row[6], 
+            "discount_price": row[7],
+            "deal_expiry": row[8], 
+            "product_link": row[9]
         }
         for row in result
     ]
 
-def update_product(product_id, name=None, description=None, category=None,
+def get_user_products(user_id, offset=0, limit=PRODUCTS_PER_PAGE):
+    """Retrieve a range of products for a specific user."""
+    query = """
+        SELECT user_id, id, name, description, category, image_url,
+               regular_price, discount_price, deal_expiry, link
+        FROM products
+        WHERE user_id = ?
+        LIMIT ? OFFSET ?
+    """
+    result = run_query(query, (user_id, limit, offset), fetch=True)
+    return [
+        {
+            "user_id": row[0], 
+            "id": row[1], 
+            "name": row[2], 
+            "description": row[3], 
+            "category": row[4],
+            "image_url": row[5], 
+            "regular_price": row[6], 
+            "discount_price": row[7],
+            "deal_expiry": row[8], 
+            "product_link": row[9]
+        }
+        for row in result
+    ]
+
+def update_product(user_id, product_id, name=None, description=None, category=None,
                    image_url=None, regular_price=None, discount_price=None,
                    deal_expiry=None, link=None):
     """
@@ -103,7 +139,7 @@ def update_product(product_id, name=None, description=None, category=None,
     if not fields:
         return False  # Nothing to update
 
-    params.append(product_id)
+    params.append(user_id, product_id)
     query = f"UPDATE products SET {', '.join(fields)} WHERE id = ?"
     run_query(query, tuple(params))
     return True
@@ -118,3 +154,8 @@ def count_products():
     """Return the total number of products in the database."""
     query = "SELECT COUNT(*) FROM products"
     return run_query(query, fetch=True)[0][0]
+
+def count_user_products(user_id):
+    """Return the total number of products for a specific user."""
+    query = "SELECT COUNT(*) FROM products WHERE user_id = ?"
+    return run_query(query, (user_id,), fetch=True)[0][0]

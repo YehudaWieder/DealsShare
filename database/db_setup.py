@@ -1,6 +1,7 @@
 import sqlite3
+from config import DB_PATH
 
-DB_PATH = "database/deals.db"
+DB_PATH = DB_PATH
 
 def create_tables():
     with sqlite3.connect(DB_PATH) as conn:
@@ -27,7 +28,8 @@ def create_tables():
                 regular_price REAL,
                 discount_price REAL,
                 deal_expiry TEXT,
-                link TEXT
+                link TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         """)
         conn.commit()
