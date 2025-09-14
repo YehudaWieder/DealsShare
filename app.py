@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, session, url_for
 
 from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
-from routes.product_routes import delete_product_by_id, insert_new_product
+from routes.product_routes import delete_product_by_id, insert_new_product, update_product_in_db
 from routes.user_routes import delete_profile, edit_profile_details
 from database.user_crud import count_users, get_all_users, get_user
 from database.product_crud import count_products, count_user_products, get_product, get_products, get_user_products
@@ -64,36 +64,6 @@ def product(product_id):
 
     return render_template('product.html', message=msg, product=product)
 
-
-@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
-def edit_product(product_id):
-    """
-    Render user's personal edit product page
-    """
-    if "user_id" not in session:
-        return redirect(url_for('login', message="Please login first"))
-    
-    msg = request.args.get("message")
-    
-    user = get_user(session.get("user_id"))
-    product = get_product(product_id)
-    
-    if product["user_id"] != session.get("user_id") and user["role"] != "admin":
-        return redirect(url_for('home', message="You are not authorized to edit this product"))
-    
-    if request.method == 'POST':
-        form_data = request.form
-        file = request.files.get("image")
-
-        result = insert_new_product(form_data, file, user["user_id"], product_id=product_id)
-        if result["success"]:
-            return redirect(url_for('product', product_id=product_id, message=result["message"]))
-        else:
-            return render_template('edit_product.html', message=result["message"], product=product)
-    
-    return render_template('edit_product.html', message=msg, product=product)
-
-
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     """
@@ -115,6 +85,35 @@ def add_product():
         else:
             return render_template('add_product.html', message=result["message"])
     return render_template('add_product.html', message=msg)
+
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
+    """
+    Render user's personal edit product page
+    """
+    if "user_id" not in session:
+        return redirect(url_for('login', message="Please login first"))
+    
+    msg = request.args.get("message")
+    
+    user = get_user(session.get("user_id"))
+    product = get_product(product_id)
+    
+    if product["user_id"] != session.get("user_id") and user["role"] != "admin":
+        return redirect(url_for('home', message="You are not authorized to edit this product"))
+    
+    if request.method == 'POST':
+        form_data = request.form
+        file = request.files.get("image")
+
+        result = update_product_in_db(form_data, file)
+        if result["success"]:
+            return redirect(url_for('product', product_id=product_id, message=result["message"]))
+        else:
+            return render_template('edit_product.html', message=result["message"], product=product)
+    
+    return render_template('edit_product.html', message=msg, product=product)
+
 
 """ ------------------------
    Users routes
@@ -192,7 +191,12 @@ def profile():
         
         elif which_form == 'delete product':
             result = delete_product_by_id(request.form)
-            return render_template('profile.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
+
+            total_count = count_user_products(user_id)
+            total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+            products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_id=user_id)
+            
+            return render_template('profile.html', message=result['message'], products=products, page=page, total_pages=total_pages, user=user)
         
     return render_template('profile.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
 

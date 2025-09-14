@@ -57,12 +57,12 @@
                 <label for="category">Category</label>
                 <select id="category" name="category" required>
                     <option value="" disabled selected>Select a category</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="books">Books</option>
-                    <option value="clothing">Clothing</option>
-                    <option value="home">Home & Kitchen</option>
-                    <option value="toys">Toys</option>
+                    {% set categories = ['electronics', 'books', 'clothing', 'home', 'toys'] %}
+                    {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat|capitalize }}</option>
+                    {% endfor %}
                 </select>
+
 
                 <label for="image">Product Image</label>
                 <input type="file" id="image" name="image" accept="image/*" >

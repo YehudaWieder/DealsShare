@@ -102,7 +102,7 @@ def get_user_products(user_id, offset=0, limit=PRODUCTS_PER_PAGE):
         for row in result
     ]
 
-def update_product(user_id, product_id, name=None, description=None, category=None,
+def update_product(product_id, name=None, description=None, category=None,
                    image_url=None, regular_price=None, discount_price=None,
                    deal_expiry=None, link=None):
     """
@@ -139,7 +139,7 @@ def update_product(user_id, product_id, name=None, description=None, category=No
     if not fields:
         return False  # Nothing to update
 
-    params.append(user_id, product_id)
+    params.append(product_id)
     query = f"UPDATE products SET {', '.join(fields)} WHERE id = ?"
     run_query(query, tuple(params))
     return True
