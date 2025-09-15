@@ -45,11 +45,35 @@
             <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
         </svg>
 
-        <div class="">
-            <div class="">
-                <h1>{{ user["username"] }}</h1>
+        <div class="massage-banner">
+    
+            <h1>My Profile</h1>
+            <div class="user-info">
+                <h1>{{ user["first_name"] }} {{ user["last_name"] }}</h1>
                 <h3>{{ user["email"] }}</h3>
+                <p>Role: {{ user["role"] }}</p>
+                <p>Number of products: {{ user["product_count"] }}</p>
+
+                <div class="rating">
+                    {% set stars = user["avg_rating"]|round(0, 'floor')|int %}
+                    {% for i in range(5) %}
+                        {% if i < stars %}
+                            <!-- full star -->
+                            <svg class="star full" viewBox="0 0 24 24">
+                                <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                            </svg>
+                        {% else %}
+                            <!-- empty star -->
+                            <svg class="star empty" viewBox="0 0 24 24">
+                                <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                            </svg>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="rating-number">({{ user["avg_rating"]|default("0.0") }})</span>
+                </div>
             </div>
+
+
             
             <div id="manage-profile-btns" class="btn-container">
                 <!-- Edit Profile -->
@@ -64,7 +88,7 @@
                 
                 <!-- Delete User -->
                 <form action="/profile" method="POST" class="unstyled-form"> 
-                    <input type="hidden" name="user_id" value="{{ user['user_id'] }}">
+                    <input type="hidden" name="email" value="{{ user['email'] }}">
                     <button type="submit" name="submit_button" class="btn" value="delete profile">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 user-icon" viewBox="0 0 16 16">
                             <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>

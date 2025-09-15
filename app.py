@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, session, url_for
 from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
 from routes.product_routes import delete_product_by_id, insert_new_product, update_product_in_db
-from routes.user_routes import delete_profile, edit_profile_details
+from routes.user_routes import delete_profile, edit_profile_details, get_user_with_stats
 from database.user_crud import count_users, get_all_users, get_user
 from database.product_crud import count_products, count_user_products, get_product, get_products, get_user_products
 
@@ -18,9 +18,9 @@ if not os.path.exists(DB_PATH):
     import database.db_setup
     database.db_setup.create_tables()
     
-    import database.seed_data
-    Timer(0.2, database.seed_data.seed_data).start()
-    time.sleep(3)
+    # import database.seed_data
+    # Timer(0.2, database.seed_data.seed_data).start()
+    # time.sleep(3)
     
 
 app = Flask(__name__)
@@ -145,7 +145,7 @@ def login():
         result = user_login(request.form)
         
         if result["success"]:
-            session["user_id"] = result["user_id"]
+            session["user_id"] = result["email"]
             return redirect(url_for('profile', message=result["message"]))
         elif result["message"] == "Incorrect password":
             return render_template('login.html', message=result["message"])
@@ -169,14 +169,14 @@ def profile():
     
     msg = request.args.get("message")    
     user_id = session.get("user_id")
-    user = get_user(user_id)
+    user = get_user_with_stats(user_id)
     
     page = int(request.args.get("page", 1))
     offset = (page - 1) * PRODUCTS_PER_PAGE
     
-    products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_id=user_id)
+    products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_email=user_id)
     
-    total_count = count_user_products(user_id)
+    total_count = user["product_count"]
     total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
     
     if request.method == 'POST':
@@ -187,14 +187,14 @@ def profile():
             if result["success"]:
                 session.clear()
                 return redirect(url_for('home', message=result["message"]))
-            return render_template('profile.html', products=products, message=result["message"], total_pages=total_pages, user=user)
+            return render_template('profile.html', products=products, message=result["message"], page=page, total_pages=total_pages, user=user)
         
         elif which_form == 'delete product':
             result = delete_product_by_id(request.form)
 
-            total_count = count_user_products(user_id)
+            total_count = user["product_count"]
             total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
-            products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_id=user_id)
+            products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_email=user_id)
             
             return render_template('profile.html', message=result['message'], products=products, page=page, total_pages=total_pages, user=user)
         
@@ -240,7 +240,7 @@ def admin():
         
     num_users = count_users()
     num_products = count_products()
-    num_clicks = ""
+    num_clicks = "---"  # Placeholder for future implementation
     
     return render_template('admin.html', num_users=num_users, num_products=num_products, num_clicks=num_clicks)
 
@@ -269,7 +269,7 @@ def users():
     return render_template('users.html', message=msg, users=users)
 
 
-@app.route('/products')
+@app.route('/products', methods=['GET', 'POST'])
 def products():
     """
     Render list of prodacts for admin
@@ -292,6 +292,10 @@ def products():
     
     total_count = count_products()
     total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+    
+    if request.method == 'POST':
+        result = delete_product_by_id(request.form)
+        return render_template('products.html', message=result["message"], products=products, page=page, total_pages=total_pages)
     
     return render_template('products.html', message=msg, products=products, page=page, total_pages=total_pages)
 

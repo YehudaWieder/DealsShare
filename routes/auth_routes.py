@@ -1,13 +1,13 @@
 import bcrypt
 
-from database.user_crud import create_user, find_user
+from database.user_crud import create_user, get_user
 
 
 def is_user_exist(email: str) -> bool:
     """
     Check if a user with the given email already exists in the database.
     """
-    user = find_user(email)
+    user = get_user(email)
     if user:
         return user
     return False
@@ -17,8 +17,10 @@ def insert_new_user(form_data) -> dict:
     Main function to insert a new user from form data.
     Returns a dictionary with success status and message.
     """
-    username = form_data.get("username")
     email = form_data.get("email")
+    first_name = form_data.get("first_name")
+    last_name = form_data.get("last_name")
+    gender = form_data.get("gender")
     password = bcrypt.hashpw(form_data.get("password").encode(), bcrypt.gensalt())
     role = form_data.get("role", "user")  # default role
 
@@ -27,7 +29,7 @@ def insert_new_user(form_data) -> dict:
         return {"success": False, "message": "User with this email already exists."}
 
     # insert new User into DB
-    create_user(username=username, email=email, password=password, role=role)
+    create_user(email=email, first_name=first_name, last_name=last_name, gender=gender, password=password, role=role)
 
     return {"success": True, "message": "User registered successfully."}
 
@@ -48,6 +50,6 @@ def user_login(form_data) -> dict:
 
     # Check password
     if bcrypt.checkpw(password.encode(), user["password"]):
-        return {"success": True, "message": "Login successfully.", "user_id": user["user_id"]}
+        return {"success": True, "message": "Login successfully.", "email": user["email"]}
     else:
         return {"success": False, "message": "Incorrect password"}

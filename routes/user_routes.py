@@ -1,8 +1,22 @@
 
 
 import bcrypt
-from database.user_crud import delete_user, get_user, update_user
+from database.user_crud import delete_user, get_user, get_user_avg_rating, update_user
+from database.product_crud import count_user_favorites, count_user_products
 
+def get_user_with_stats(email):
+    """
+    Retrieve user details along with their product statistics.
+    """
+    user = get_user(email)
+    if not user:
+        return {"success": False, "message": "User not found."}
+
+    user["product_count"] = count_user_products(email)
+    user["avg_rating"] = get_user_avg_rating(email)
+    user["favorite_count"] = count_user_favorites(email)
+
+    return user
 
 def edit_profile_details(form_data) -> dict:
     """
@@ -42,7 +56,7 @@ def delete_profile(form_data) -> dict:
     Main function to delete an existing user by ID.
     Returns a dictionary with success status and message.
     """
-    user_id = form_data.get("user_id")
+    user_id = form_data.get("email")
     
     # Check if the user exists in DB
     existing_user = get_user(user_id)

@@ -17,6 +17,9 @@ def save_and_resize_image(file, product_id, max_size=(800, 800)):
     Save the uploaded image to the uploads folder and resize it.
     Returns the relative path to be stored in the DB.
     """
+    if isinstance(file, str) and file:
+        return file
+    
     if not file:
         return "/uploads/example.png"
     
@@ -72,10 +75,11 @@ def insert_new_product(form_data, file, user_id) -> dict:
     discount_price = form_data.get("discount_price")
     deal_expiry = form_data.get("deal_expiry")  # string format: "DD/MM/YYYY"
     link = form_data.get("link")
-
-    # Handle image upload
-
-    ext = file.filename.rsplit(".", 1)[1].lower()
+        
+    try:
+        ext = file.filename.rsplit(".", 1)[1].lower()
+    except:
+        ext = "png"
 
     # Insert product into DB
     product_id = create_product(
@@ -116,7 +120,7 @@ def delete_product_by_id(form_data) -> dict:
         delete_product(product_id)
 
         file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(existing_product['image_url']))
-        if os.path.exists(file_path):
+        if os.path.exists(file_path) and "example.png" not in file_path and "image1.jpg" not in file_path and "image2.jpg" not in file_path:
             os.remove(file_path)
             
         return {"success": True, "message": "Product deleted successfully."}

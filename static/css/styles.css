@@ -491,6 +491,42 @@ footer {
     margin: 20px auto;
 }
 
+/* ------------------------
+   Profile Page
+------------------------- */
+.user-info {
+    max-width: 400px;
+    background: #fff;
+    margin: 20px auto;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.star {
+    width: 24px;
+    height: 24px;
+    fill: #ccc; /* default empty color */
+}
+
+.star.full {
+    fill: #FFD700; /* gold color for full stars */
+}
+
+.rating-number {
+    margin-left: 6px;
+    font-weight: bold;
+    color: #444;
+}
+
 #profile-banner {
     padding: 30px;
     background: rgba(255,235,0,0.15);
