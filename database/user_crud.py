@@ -18,72 +18,84 @@ def run_query(query, params=(), fetch=False):
         return None
 
 # --- CRUD Functions ---
-def create_user(username, email, password, role):
+def create_user(email, first_name, last_name, gender, password, role):
     """
     Insert a new user into the database.
     """
-    query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)"
-    run_query(query, (username, email, password, role))
+    query = """
+        INSERT INTO users (email, first_name, last_name, gender, password, role)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """
+    run_query(query, (email, first_name, last_name, gender, password, role))
     return True
 
-def find_user(email):
+
+def get_user(email):
     """
-    Find a user by email and return password.
+    Retrieve a single user by email.
     """
-    query = "SELECT id, username, email, password, role FROM users WHERE email = ?"
+    query = """
+        SELECT email, first_name, last_name, gender, password, role
+        FROM users
+        WHERE email = ?
+    """
     result = run_query(query, (email,), fetch=True)
     if result:
         row = result[0]
         return {
-            "user_id": row[0],
-            "username": row[1],
-            "email": row[2],
-            "password": row[3],
-            "role": row[4]
+            "email": row[0],
+            "first_name": row[1],
+            "last_name": row[2],
+            "gender": row[3],
+            "password": row[4],
+            "role": row[5],
         }
     return None
 
-def get_user(user_id):
-    """
-    Retrieve a single user by ID.
-    """
-    query = "SELECT id, username, email, password, role FROM users WHERE id = ?"
-    result = run_query(query, (user_id,), fetch=True)
-    if result:
-        row = result[0]
-        return {
-            "user_id": row[0],
-            "username": row[1],
-            "email": row[2],
-            "password": row[3],
-            "role": row[4]
-        }
-    return None
 
 def get_all_users():
     """
-    Retrieve all users.
+    Retrieve all users (without password).
     """
-    query = "SELECT id, username, email, role FROM users"
+    query = """
+        SELECT email, first_name, last_name, gender, role
+        FROM users
+    """
     result = run_query(query, fetch=True)
     return [
-        {"user_id": row[0], "username": row[1], "email": row[2], "role": row[3]}
+        {
+        "email": row[0],
+        "first_name": row[1],
+        "last_name": row[2],
+        "gender": row[3],
+        "password": row[4],
+        "role": row[5],
+        }
         for row in result
     ]
 
-def update_user(user_id, username=None, email=None, password=None, role=None):
+
+def update_user(email, new_email=None, first_name=None,
+                last_name=None, gender=None, password=None, role=None):
     """
-    Update user fields by ID. Only provided fields will be updated.
+    Update user fields by email. Only provided fields will be updated.
     """
     fields = []
     params = []
 
-    if username:
-        fields.append("username = ?")
-        params.append(username)
-    if email:
+
+    if new_email:
         fields.append("email = ?")
-        params.append(email)
+        params.append(new_email)
+    if first_name:
+        fields.append("first_name = ?")
+        params.append(first_name)
+    if last_name:
+        fields.append("last_name = ?")
+        params.append(last_name)
+    if gender:
+        fields.append("gender = ?")
+        params.append(gender)
     if password:
         fields.append("password = ?")
         params.append(password)
@@ -94,18 +106,20 @@ def update_user(user_id, username=None, email=None, password=None, role=None):
     if not fields:
         return False  # Nothing to update
 
-    params.append(user_id)
-    query = f"UPDATE users SET {', '.join(fields)} WHERE id = ?"
+    params.append(email)
+    query = f"UPDATE users SET {', '.join(fields)} WHERE email = ?"
     run_query(query, tuple(params))
     return True
 
-def delete_user(user_id):
+
+def delete_user(email):
     """
-    Delete a user by ID.
+    Delete a user by email.
     """
-    query = "DELETE FROM users WHERE id = ?"
-    run_query(query, (user_id,))
+    query = "DELETE FROM users WHERE email = ?"
+    run_query(query, (email,))
     return True
+
 
 def count_users():
     """
@@ -114,3 +128,11 @@ def count_users():
     query = "SELECT COUNT(*) FROM users"
     return run_query(query, fetch=True)[0][0]
 
+
+def get_user_avg_rating(user_email):
+    """
+    Get the average rating of all products created by a specific user.
+    """
+    query = "SELECT AVG(rating) FROM ratings WHERE user_email = ?"
+    result = run_query(query, (user_email,), fetch=True)
+    return round(result[0][0], 1) if result and result[0][0] is not None else 0.0

@@ -18,27 +18,27 @@ def run_query(query, params=(), fetch=False, return_lastrowid=False):
         return None
 
 # --- CRUD Functions ---
-def create_product(user_id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link):
+def create_product(user_email, name, description, category, image_url, regular_price, discount_price, deal_expiry, link):
     """Insert a new product into the database."""
     query = """
         INSERT INTO products
-        (user_id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link)
+        (user_email, name, description, category, image_url, regular_price, discount_price, deal_expiry, link)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
-    product_id = run_query(query, (user_id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link), return_lastrowid=True)
+    product_id = run_query(query, (user_email, name, description, category, image_url, regular_price, discount_price, deal_expiry, link), return_lastrowid=True)
     return product_id
 
 def get_product(product_id):
     """Retrieve a single product by ID."""
     query = """
-        SELECT user_id, id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link
+        SELECT user_email, id, name, description, category, image_url, regular_price, discount_price, deal_expiry, link
         FROM products WHERE id = ?
     """
     result = run_query(query, (product_id,), fetch=True)
     if result:
         row = result[0]
         return {
-            "user_id": row[0], 
+            "user_email": row[0], 
             "id": row[1], 
             "name": row[2], 
             "description": row[3], 
@@ -54,7 +54,7 @@ def get_product(product_id):
 def get_products(offset=0, limit=PRODUCTS_PER_PAGE):
     """Retrieve a range of products with all fields."""
     query = """
-        SELECT user_id, id, name, description, category, image_url,
+        SELECT user_email, id, name, description, category, image_url,
                regular_price, discount_price, deal_expiry, link
         FROM products
         LIMIT ? OFFSET ?
@@ -62,7 +62,7 @@ def get_products(offset=0, limit=PRODUCTS_PER_PAGE):
     result = run_query(query, (limit, offset), fetch=True)
     return [
         {
-            "user_id": row[0], 
+            "user_email": row[0], 
             "id": row[1], 
             "name": row[2], 
             "description": row[3], 
@@ -76,19 +76,19 @@ def get_products(offset=0, limit=PRODUCTS_PER_PAGE):
         for row in result
     ]
 
-def get_user_products(user_id, offset=0, limit=PRODUCTS_PER_PAGE):
+def get_user_products(user_email, offset=0, limit=PRODUCTS_PER_PAGE):
     """Retrieve a range of products for a specific user."""
     query = """
-        SELECT user_id, id, name, description, category, image_url,
+        SELECT user_email, id, name, description, category, image_url,
                regular_price, discount_price, deal_expiry, link
         FROM products
-        WHERE user_id = ?
+        WHERE user_email = ?
         LIMIT ? OFFSET ?
     """
-    result = run_query(query, (user_id, limit, offset), fetch=True)
+    result = run_query(query, (user_email, limit, offset), fetch=True)
     return [
         {
-            "user_id": row[0], 
+            "user_email": row[0], 
             "id": row[1], 
             "name": row[2], 
             "description": row[3], 
@@ -101,6 +101,20 @@ def get_user_products(user_id, offset=0, limit=PRODUCTS_PER_PAGE):
         }
         for row in result
     ]
+    
+def get_user_favorites(user_email):
+    """
+    Retrieve all products liked by a specific user.
+    Returns a list of product rows.
+    """
+    query = """
+        SELECT p.*
+        FROM products p
+        JOIN favorites f ON p.id = f.product_id
+        WHERE f.user_email = ?
+    """
+    return run_query(query, (user_email,), fetch=True)
+
 
 def update_product(product_id, name=None, description=None, category=None,
                    image_url=None, regular_price=None, discount_price=None,
@@ -155,7 +169,15 @@ def count_products():
     query = "SELECT COUNT(*) FROM products"
     return run_query(query, fetch=True)[0][0]
 
-def count_user_products(user_id):
+def count_user_products(user_email):
     """Return the total number of products for a specific user."""
-    query = "SELECT COUNT(*) FROM products WHERE user_id = ?"
-    return run_query(query, (user_id,), fetch=True)[0][0]
+    query = "SELECT COUNT(*) FROM products WHERE user_email = ?"
+    return run_query(query, (user_email,), fetch=True)[0][0]
+
+def count_user_favorites(user_email):
+    """
+    Count the number of products liked by a specific user.
+    """
+    query = "SELECT COUNT(*) FROM favorites WHERE user_email = ?"
+    result = run_query(query, (user_email,), fetch=True)
+    return result[0][0] if result else 0
