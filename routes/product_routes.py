@@ -1,12 +1,15 @@
+from datetime import datetime
+from math import ceil
 import os
 from PIL import Image
 from werkzeug.utils import secure_filename
 import config
-from database.product_crud import create_product, delete_product, get_product, update_product
+from database.product_crud import count_products, create_product, delete_product, get_all_products, get_product, get_user_favorites, update_product
+from database.user_crud import get_user, get_user_avg_rating
 
-# Folder to save uploaded images
 UPLOAD_FOLDER = config.UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = config.ALLOWED_EXTENSIONS
+PRODUCTS_PER_PAGE = config.PRODUCTS_PER_PAGE
 
 def allowed_file(filename):
     """Check if the uploaded file has an allowed extension."""
@@ -17,9 +20,6 @@ def save_and_resize_image(file, product_id, max_size=(800, 800)):
     Save the uploaded image to the uploads folder and resize it.
     Returns the relative path to be stored in the DB.
     """
-    if isinstance(file, str) and file:
-        return file
-    
     if not file:
         return "/uploads/example.png"
     
@@ -63,44 +63,101 @@ def save_and_resize_image(file, product_id, max_size=(800, 800)):
         print("Error saving image:", e)
         return None
 
-def insert_new_product(form_data, file, user_id) -> dict:
+def insert_new_product(form_data, file, user_email) -> dict:
     """
     Main function to insert a new product from form data and uploaded image.
     Returns a dictionary with success status and message.
     """
     name = form_data.get("name")
+    features = form_data.get("features")  # string like: "עמיד למים, קל משקל"
+    free_shipping = form_data.get("free_shipping", "0")  # checkbox: "on" or None
     description = form_data.get("description")
     category = form_data.get("category")
     regular_price = form_data.get("regular_price")
     discount_price = form_data.get("discount_price")
-    deal_expiry = form_data.get("deal_expiry")  # string format: "DD/MM/YYYY"
     link = form_data.get("link")
-        
-    try:
-        ext = file.filename.rsplit(".", 1)[1].lower()
-    except:
-        ext = "png"
+    publish_date = datetime.now()
 
-    # Insert product into DB
+    # Normalize free_shipping
+    free_shipping = 1 if free_shipping in ("1", "true", "True", "on") else 0
+
+    ext = file.filename.rsplit(".", 1)[1].lower()
+
+    # Insert product into DB (use a temp image_url initially)
     product_id = create_product(
-        user_id=user_id,
+        user_email=user_email,
         name=name,
+        features=features,
+        free_shipping=free_shipping,
         description=description,
         category=category,
-        image_url=f"temp_name.{ext}",
         regular_price=regular_price,
         discount_price=discount_price,
-        deal_expiry=deal_expiry,
-        link=link
+        image_url=f"temp_name.{ext}",
+        link=link,
+        publish_date=publish_date
     )
 
+    # Handle image saving
     image_url = save_and_resize_image(file, product_id)
     if not image_url:
         return {"success": False, "message": "Invalid image."}
-    
+
     update_product(product_id, image_url=image_url)
 
     return {"success": True, "message": "Product added successfully.", "product_id": product_id}
+
+
+def update_product_in_db(form_data, file) -> dict:
+    """
+    Main function to update an existing product from form data.
+    Returns a dictionary with success status and message.
+    """
+    product_id = form_data.get("product_id")
+    name = form_data.get("name", None)
+    features = form_data.get("features", None)
+    free_shipping = form_data.get("free_shipping", None)
+    description = form_data.get("description", None)
+    category = form_data.get("category", None)
+    regular_price = form_data.get("regular_price", None)
+    discount_price = form_data.get("discount_price", None)
+    link = form_data.get("link", None)
+    publish_date = datetime.now()
+
+    # Normalize free_shipping if provided
+    if free_shipping is not None:
+        free_shipping = 1 if free_shipping in ("1", "true", "True", "on") else 0
+
+    # Check if the product exists in DB
+    existing_product = get_product(product_id)
+    if not existing_product:
+        return {"success": False, "message": "Product not found."}
+
+    # Handle image upload
+    if isinstance(file, str) and file:
+        image_url = file
+    else:
+        image_url = save_and_resize_image(file, product_id=product_id)
+    if not image_url:
+        return {"success": False, "message": "Invalid image."}
+
+    try:
+        update_product(
+            product_id=product_id,
+            name=name,
+            features=features,
+            free_shipping=free_shipping,
+            description=description,
+            category=category,
+            image_url=image_url,
+            regular_price=regular_price,
+            discount_price=discount_price,
+            link=link,
+            publish_date=publish_date
+        )
+        return {"success": True, "message": "Product updated successfully."}
+    except Exception as e:
+        return {"success": False, "message": f"Error while updating product: {str(e)}"}
 
 
 def delete_product_by_id(form_data) -> dict:
@@ -127,41 +184,65 @@ def delete_product_by_id(form_data) -> dict:
     except Exception as e:
         return {"success": False, "message": f"Error while deleting product: {str(e)}"}
 
-
-def update_product_in_db(form_data, file) -> dict:
+def get_all_products_with_saler_info(offset: int, limit: int) -> list:
     """
-    Main function to update an existing product from form data.
-    Returns a dictionary with success status and message.
+    Fetch all products along with their saler info from the database with pagination.
+    Returns a list of products with saler details.
     """
-    # Extract new values from form_data
-    product_id = form_data.get("product_id")
-    name = form_data.get("name", None)
-    description = form_data.get("description", None)
-    category = form_data.get("category", None)
-    regular_price = form_data.get("regular_price", None)
-    discount_price = form_data.get("discount_price", None)
-    deal_expiry = form_data.get("deal_expiry", None)
-    link = form_data.get("link", None)
+    products = get_all_products(offset=offset, limit=limit)
+    
+    for product in products:
+        saller = get_user(product['user_email'])
+        product['seller_name'] = saller['first_name'] + ' ' + saller['last_name']  
+        product['seller_rating'] = get_user_avg_rating(product['user_email'])
+        
+    return products
 
-    # Check if the product exists in DB
-    existing_product = get_product(product_id)
-    if not existing_product:
-        return {"success": False, "message": "Product not found."}
+def get_all_favorite_products_with_saler_info(user_email: str, offset: int, limit: int) -> list:
+    """
+    Fetch all favorite products of a user along with their saler info from the database.
+    Returns a list of favorite products with saler details.
+    """
+    products = get_user_favorites(user_email=user_email, offset=offset, limit=limit)
+    
+    for product in products:
+        saller = get_user(product['user_email'])
+        product['seller_name'] = saller['first_name'] + ' ' + saller['last_name']  
+        product['seller_rating'] = get_user_avg_rating(product['user_email'])
+        
+    return products
 
-    # Handle image upload
-    if isinstance(file, str) and file:
-        image_url = file
-    else:
-        image_url = save_and_resize_image(file, product_id=product_id)
-    if not image_url:
-        return {"success": False, "message": "Invalid image."}
+def get_product_with_saler_info(product_id: int) -> dict:
+    """
+    Fetch a single product along with its saler info from the database by product ID.
+    Returns a dictionary with product and saler details.
+    """
+    product = get_product(product_id)
 
-    try:
-        update_product(product_id=product_id,
-                       name=name, description=description, category=category,
-                       image_url=image_url, regular_price=regular_price,
-                       discount_price=discount_price, deal_expiry=deal_expiry,
-                       link=link)
-        return {"success": True, "message": "Product updated successfully."}
-    except Exception as e:
-        return {"success": False, "message": f"Error while updating product: {str(e)}"}
+    saller = get_user(product['user_email'])
+    product['seller_name'] = saller['first_name'] + ' ' + saller['last_name']  
+    product['seller_rating'] = get_user_avg_rating(product['user_email'])
+    
+    return product
+
+def calculate_pagination_data(page: int) -> dict:
+    """
+    Calculate pagination data based on the current page.
+    Returns a dictionary containing the current page, offset, and total pages.
+    """
+    # Calculate the offset based on the current page
+    offset = (page - 1) * PRODUCTS_PER_PAGE
+
+    # Get the total number of products in the database
+    total_count = count_products()
+
+    # Calculate the total number of pages
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+
+    # Return pagination data as a dictionary
+    return {
+        "page": page,
+        "offset": offset,
+        "total_pages": total_pages
+    }
+    

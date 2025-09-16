@@ -25,6 +25,13 @@
                 <button class="bar-button">Share Product</button>
             </a>
 
+            <a href="{{ url_for('favorites') }}">
+                <!-- heart icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart bar-icon" viewBox="0 0 16 16">
+                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                </svg>
+            </a>
+
             <div class="profile-menu">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
@@ -68,15 +75,57 @@
                     </form>
                 </div>
                 
-                <a href="{{ url_for('product', product_id=product["id"]) }}">
-                    <img src="{{ url_for('static', filename=product["image_url"]) }}" alt="Product Image">
+                <a href="{{ url_for('product', product_id=product['id']) }}">
+
+                    <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
+                        alt="{{ product['name'] }}" class="product-image">
+
                     <div class="product-info">
-                        <h3>{{ product["name"] }}</h3>
-                        <p>{{ product["description"] }}</p>
-                        <p class="regular_price">$ {{ product["regular_price"] }}</p>
-                        <p class="price">$ {{ product["discount_price"] }}</p>
-                        <h6>Deal expires on: {{ product["deal_expiry"] }}</h6>
-                        <h4>user shared ID: {{ product["user_id"] }}</h4>
+                        {% set features_list = product["features"].split(",") if product["features"] else [] %}
+                        {% set publish_date = product["publish_date"] | default('1970-01-01') %}
+                        {% set days_since_publish = ( current_time  - publish_date).days %}
+
+                        {% if days_since_publish >= 4 %}
+                            <div class="badge sale-ending">Deal Ending Soon!</div>
+                        {% endif %}
+
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product["name"] }}</h3>
+
+                            {% if features_list %}
+                                <ul class="features-list">
+                                    {% for feat in features_list %}
+                                        <li>{{ feat.strip() }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if product["free_shipping"] %}
+                                <span class="free-shipping-label">Free Shipping</span>
+                            {% endif %}
+
+                            <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
+                            <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+
+                            <!-- Seller Info -->
+                            <h5 class="seller-name">seller: {{ product["seller_name"] }}</h5>
+                            <div class="">
+                                {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
+                                {% for i in range(5) %}
+                                    {% if i < stars %}
+                                        <!-- full star -->
+                                        <svg class="star full card-star" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                        </svg>
+                                    {% else %}
+                                        <!-- empty star -->
+                                        <svg class="star empty card-star" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -86,20 +135,20 @@
 
     <!-- pagination Button -->
     <div class="pagination">
-        {% if page > 1 %}
-            <a href="{{ url_for('products', page=page-1) }}">&laquo; Previous</a>
+        {% if pagination_data["page"] > 1 %}
+            <a href="{{ url_for('home', page=pagination_data["page"]-1) }}">&laquo; Previous</a>
         {% endif %}
 
-        {% for p in range(1, total_pages + 1) %}
-            {% if p == page %}
+        {% for p in range(1, pagination_data["total_pages"] + 1) %}
+            {% if p == pagination_data["page"] %}
                 <span class="current-page">{{ p }}</span>
             {% else %}
-                <a href="{{ url_for('products', page=p) }}">{{ p }}</a>
+                <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
             {% endif %}
         {% endfor %}
 
-        {% if page < total_pages %}
-            <a href="{{ url_for('products', page=page+1) }}">Next &raquo;</a>
+        {% if pagination_data["page"] < pagination_data["total_pages"] %}
+            <a href="{{ url_for('home', page=pagination_data["page"]+1) }}">Next &raquo;</a>
         {% endif %}
     </div>
 

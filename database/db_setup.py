@@ -22,18 +22,21 @@ def create_tables():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_email INTEGER NOT NULL,
+                user_email TEXT NOT NULL,
                 name TEXT NOT NULL,
+                features TEXT,
+                free_shipping INTEGER DEFAULT 0,
                 description TEXT,
                 category TEXT,
-                image_url TEXT,
                 regular_price REAL,
                 discount_price REAL,
-                deal_expiry TEXT,
+                image_url TEXT,
                 link TEXT,
+                publish_date TEXT,
                 FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE
             )
         """)
+
         
         # Ratings table
         cursor.execute("""

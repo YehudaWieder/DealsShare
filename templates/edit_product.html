@@ -25,6 +25,13 @@
                 <button class="bar-button">Share Product</button>
             </a>
 
+            <a href="{{ url_for('favorites') }}">
+                <!-- heart icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart bar-icon" viewBox="0 0 16 16">
+                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                </svg>
+            </a>
+
             <div class="profile-menu">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
@@ -48,31 +55,37 @@
         <!-- form container -->
         <div class="container">
             <form action="{{ url_for('edit_product', product_id=product['id']) }}" method="POST" enctype="multipart/form-data" class="product-form">
-                <!-- Hidden field for product ID -->
                 <input type="hidden" name="product_id" value="{{ product['id'] }}">
 
                 <label for="name">Product Name</label>
                 <input type="text" id="name" name="name" value="{{ product['name'] }}" required>
 
-                <label for="description">Description</label>
-                <textarea id="description" name="description" rows="2" maxlength="50">{{ product['description'] }}</textarea>
+                <label for="features">Key Features (2-3, comma-separated)</label>
+                <input type="text" id="features" name="features" value="{{ product['features'] }}" required>
+
+                <label for="detailed_description">Detailed Description</label>
+                <textarea id="detailed_description" name="detailed_description" rows="4" maxlength="300" required>{{ product['detailed_description'] }}</textarea>
 
                 <label for="category">Category</label>
                 <select id="category" name="category" required>
                     <option value="" disabled {% if not product['category'] %}selected{% endif %}>Select a category</option>
-                    {% set categories = ['electronics', 'books', 'clothing', 'home', 'toys'] %}
+                    {% set categories = ['home_&_garden', 'electronics', 'clothing', 'Shoes', 'toys', 'kitchen', 'sports', 'office'] %}
                     {% for cat in categories %}
                         <option value="{{ cat }}" {% if product['category'] == cat %}selected{% endif %}>
-                            {{ cat|capitalize }}
+                            {{ cat.replace('_',' ')|capitalize }}
                         </option>
                     {% endfor %}
                 </select>
 
+                <label>
+                    <input type="checkbox" name="free_shipping" value="1" {% if product['free_shipping'] %}checked{% endif %}>
+                    Free Shipping
+                </label>
+
                 <label for="image">Product Image</label>
                 <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
-                alt="Current product image" style="max-width:80px; display:block; margin-bottom:10px;">
+                    alt="Current product image" style="max-width:80px; display:block; margin-bottom:10px;">
                 <input type="file" id="image" name="image" accept="image/*">
-
 
                 <label for="regular_price">Regular Price</label>
                 <div class="input-wrapper">
@@ -83,17 +96,15 @@
                 <label for="discount_price">Sale Price</label>
                 <div class="input-wrapper">
                     <span class="currency">₪</span>
-                    <input type="number" id="discount_price" name="discount_price" step="0.01" value="{{ product['discount_price'] }}" required>
+                    <input type="number" id="discount_price" name="discount_price" step="0.01" value="{{ product['discount_price'] }}">
                 </div>
-                
-                <label for="deal_expiry">Sale Expiry Date</label>
-                <input type="date" id="deal_expiry" name="deal_expiry" value="{{ product['deal_expiry'] }}">
 
                 <label for="link">Product Link</label>
-                <input type="url" id="link" name="link" value="{{ product['product_link'] }}">
+                <input type="url" id="link" name="link" value="{{ product['product_link'] }}" required>
 
                 <button type="submit" class="btn">Save Changes</button>
             </form>
+
         </div>
     </main>
 

@@ -25,6 +25,13 @@
                 <button class="bar-button">Share Product</button>
             </a>
 
+            <a href="{{ url_for('favorites') }}">
+                <!-- heart icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart bar-icon" viewBox="0 0 16 16">
+                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                </svg>
+            </a>
+
             <div class="profile-menu">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
@@ -43,27 +50,95 @@
         </div>
     </header>
     <main class="container">
-        <div class="product-card">
-            <div class="product-icons">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart product-icon" viewBox="0 0 16 16">
-                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share product-icon" viewBox="0 0 16 16">
-                    <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
-                </svg>
+        <div class="single-product-page">
+
+            <!-- Product Image -->
+            <div class="product-image-wrapper">
+                <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
+                    alt="{{ product['name'] }}" class="single-product-image">
+                {% set publish_date = product["publish_date"] | default('1970-01-01') %}
+                {% set days_since_publish = ( current_time - publish_date ).days %}   
             </div>
-            <img src="{{ url_for('static', filename=product['image_url']) }}" alt="Product Image">
-            <div class="product-info">
-                <h3>{{ product["name"] }}</h3>
-                <p>{{ product["description"] }}</p>
-                <p class="regular_price">$ {{ product["regular_price"] }}</p>
-                <p class="price">$ {{ product["discount_price"] }}</p>
-                <h6>Deal expires on: {{ product["deal_expiry"] }}</h6>
-                <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
-                    <button class="btn">Buy Now</button>
-                </a>
+
+            <!-- Product Info -->
+            <div class="product-details">
+                {% if days_since_publish >= 0 %}
+                    <div class="badge single-product-badge">Deal Ending Soon!</div>
+                {% endif %}
+
+                <h1 class="product-name">{{ product["name"] }}</h1>
+
+                <div class="price-section">
+                    <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
+                    <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+                </div>
+
+                <div class="product-features">
+                    {% set features_list = product["features"].split(",") if product["features"] else [] %}
+                    {% if features_list %}
+                        <h3>Key Features:</h3>
+                        <ul class="features-list">
+                            {% for feat in features_list %}
+                                <li>{{ feat.strip() }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if product["free_shipping"] %}
+                        <div class="free-shipping-label">Free Shipping</div>
+                    {% endif %}
+                </div>
+                
+                <div class="product-description">
+                    <h3>Description:</h3>
+                    <p>{{ product["description"] }}</p>
+                </div>
+
+                <!-- Seller Info -->
+                <div class="seller-info">
+                    <h4>Seller: {{ product["seller_name"] }}</h4>
+                    <div class="seller-rating">
+                        {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
+                        {% for i in range(5) %}
+                            {% if i < stars %}
+                                <svg class="star full" viewBox="0 0 24 24">
+                                    <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="star empty" viewBox="0 0 24 24">
+                                    <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                </svg>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Buy Now -->
+                <div class="buy-button-wrapper">
+                    <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
+                        <button class="btn buy-now">Buy Now</button>
+                    </a>
+                </div>
             </div>
+
         </div>
+
+        <div class="product-rating-section">
+            <h4>Rate this Product</h4>
+            <br>
+            <form action="{{ url_for('rating', product_id=product['id']) }}" method="POST" class="rating-form">
+                <div class="star-rating">
+                    {% for i in range(5, 0, -1) %}
+                        <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                        <label for="star{{ i }}" title="{{ i }} stars">
+                            ★
+                        </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn submit-rating">Submit Rating</button>
+            </form>
+        </div>
+
     </main>
 
     <!-- popup container -->

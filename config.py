@@ -1,7 +1,7 @@
 import os
 
 # Flask settings
-SECRET_KEY= "2cf......................1df4"
+SECRET_KEY= "2cf31a1bd8ebdf07f9e94bc2332b1df4"
 
 # Database settings
 DB_PATH = "database/deals.db"

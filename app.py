@@ -1,3 +1,4 @@
+from datetime import datetime
 from math import ceil
 import os
 from threading import Timer
@@ -7,10 +8,10 @@ from flask import Flask, render_template, request, redirect, session, url_for
 
 from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
-from routes.product_routes import delete_product_by_id, insert_new_product, update_product_in_db
+from routes.product_routes import delete_product_by_id, calculate_pagination_data, get_all_favorite_products_with_saler_info, get_product_with_saler_info, insert_new_product, update_product_in_db, get_all_products_with_saler_info
 from routes.user_routes import delete_profile, edit_profile_details, get_user_with_stats
 from database.user_crud import count_users, get_all_users, get_user
-from database.product_crud import count_products, count_user_products, get_product, get_products, get_user_products
+from database.product_crud import count_products, get_all_products, get_product, rate_product
 
 from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH
 
@@ -28,6 +29,9 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY
 app.config['SESSION_PERMANENT'] = False
 
+current_time = datetime.now()
+
+
 """ ------------------------
    Products routes
 ------------------------- """
@@ -39,18 +43,14 @@ def home():
     """
     msg = request.args.get("message")
     
-    user_id = session.get("user_id")
-    user = get_user(user_id)
+    user_email = session.get("user_email")
+    user = get_user(user_email)
     
-    page = int(request.args.get("page", 1))
-    offset = (page - 1) * PRODUCTS_PER_PAGE
+    pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
     
-    products = get_products(offset=offset, limit=PRODUCTS_PER_PAGE)
-    
-    total_count = count_products()
-    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
-    
-    return render_template('home.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
+    products = get_all_products_with_saler_info(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+
+    return render_template('home.html', message=msg, products=products, pagination_data=pagination_data, user=user, current_time=current_time)
 
 
 @app.route('/product/<int:product_id>')
@@ -60,16 +60,16 @@ def product(product_id):
     """
     msg = request.args.get("message")
     
-    product = get_product(product_id)
+    product = get_product_with_saler_info(product_id)
 
-    return render_template('product.html', message=msg, product=product)
+    return render_template('product.html', message=msg, product=product, current_time=current_time)
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     """
     Handle form submission to add a new product
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
     msg = request.args.get("message")
@@ -77,9 +77,9 @@ def add_product():
     if request.method == 'POST':
         form_data = request.form
         file = request.files.get("image")
-        user_id = session.get("user_id")
+        user_email = session.get("user_email")
 
-        result = insert_new_product(form_data, file, user_id)
+        result = insert_new_product(form_data, file, user_email)
         if result["success"]:
             return redirect(url_for('product', product_id=result["product_id"], message=result["message"]))
         else:
@@ -91,15 +91,15 @@ def edit_product(product_id):
     """
     Render user's personal edit product page
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
     msg = request.args.get("message")
     
-    user = get_user(session.get("user_id"))
+    user = get_user(session.get("user_email"))
     product = get_product(product_id)
     
-    if product["user_id"] != session.get("user_id") and user["role"] != "admin":
+    if product["user_email"] != session.get("user_email") and user["role"] != "admin":
         return redirect(url_for('home', message="You are not authorized to edit this product"))
     
     if request.method == 'POST':
@@ -113,6 +113,21 @@ def edit_product(product_id):
             return render_template('edit_product.html', message=result["message"], product=product)
     
     return render_template('edit_product.html', message=msg, product=product)
+
+@app.route('/rating/<int:product_id>', methods=['POST'])
+def rating(product_id):
+    """
+    Handle rating submission for a product
+    """
+    if "user_email" not in session:
+        return redirect(url_for('login', message="Please login first"))
+    
+    user_email = session.get("user_email")
+    rating = request.form.get('rating')
+    
+    rate_product(user_email, product_id, rating)
+        
+    return redirect(url_for('product', product_id=product_id))
 
 
 """ ------------------------
@@ -145,7 +160,7 @@ def login():
         result = user_login(request.form)
         
         if result["success"]:
-            session["user_id"] = result["email"]
+            session["user_email"] = result["email"]
             return redirect(url_for('profile', message=result["message"]))
         elif result["message"] == "Incorrect password":
             return render_template('login.html', message=result["message"])
@@ -164,20 +179,16 @@ def profile():
     """
     Render user's personal profile page
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
     msg = request.args.get("message")    
-    user_id = session.get("user_id")
-    user = get_user_with_stats(user_id)
+    user_email = session.get("user_email")
+    user = get_user_with_stats(user_email)
     
-    page = int(request.args.get("page", 1))
-    offset = (page - 1) * PRODUCTS_PER_PAGE
+    pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
     
-    products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_email=user_id)
-    
-    total_count = user["product_count"]
-    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+    products = get_all_products(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
     
     if request.method == 'POST':
         which_form = request.form.get('submit_button')
@@ -187,18 +198,17 @@ def profile():
             if result["success"]:
                 session.clear()
                 return redirect(url_for('home', message=result["message"]))
-            return render_template('profile.html', products=products, message=result["message"], page=page, total_pages=total_pages, user=user)
+            return render_template('profile.html', products=products, message=result["message"], pagination_data=pagination_data, user=user, current_time=current_time)
         
         elif which_form == 'delete product':
             result = delete_product_by_id(request.form)
 
-            total_count = user["product_count"]
-            total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
-            products = get_user_products(offset=offset, limit=PRODUCTS_PER_PAGE, user_email=user_id)
+            pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
+            products = get_all_products(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
             
-            return render_template('profile.html', message=result['message'], products=products, page=page, total_pages=total_pages, user=user)
+            return render_template('profile.html', message=result['message'], products=products, pagination_data=pagination_data, user=user, current_time=current_time)
         
-    return render_template('profile.html', message=msg, products=products, page=page, total_pages=total_pages, user=user)
+    return render_template('profile.html', message=msg, products=products, pagination_data=pagination_data, user=user, current_time=current_time)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -206,11 +216,11 @@ def edit_profile():
     """
     Render user's personal edit profile page
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
-    user_id = session.get("user_id")
-    user = get_user(user_id)
+    user_email = session.get("user_email")
+    user = get_user(user_email)
     
     if request.method == 'POST':
         result = edit_profile_details(request.form)
@@ -219,6 +229,24 @@ def edit_profile():
         return render_template('edit_profile.html', message=result["message"], user=user)
     
     return render_template('edit_profile.html', user=user)
+
+@app.route('/favorites', methods=['GET', 'POST'])
+def favorites():
+    """
+    Render the user's favorite products page
+    """
+    if "user_email" not in session:
+        return redirect(url_for('login', message="Please login first"))
+    
+    msg = request.args.get("message")
+    user_email = session.get("user_email")
+    user = get_user_with_stats(user_email)
+    
+    pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
+    
+    products = get_all_favorite_products_with_saler_info(user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+    
+    return render_template('favorites.html', message=msg, products=products, pagination_data=pagination_data, user=user, current_time=current_time)
 
 """ ------------------------
    Admin routes
@@ -229,12 +257,12 @@ def admin():
     """
     Render admin dashboard page
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
-    user_id = session.get("user_id")
+    user_email = session.get("user_email")
     
-    result = is_user_admin(user_id)
+    result = is_user_admin(user_email)
     if not result["success"]:
             return redirect(url_for('login', message=result["message"]))
         
@@ -250,12 +278,12 @@ def users():
     """
     Render list of users for admin
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
-    user_id = session.get("user_id")
+    user_email = session.get("user_email")
     
-    result = is_user_admin(user_id)
+    result = is_user_admin(user_email)
     if not result["success"]:
             return redirect(url_for('login', message=result["message"]))
     
@@ -274,30 +302,26 @@ def products():
     """
     Render list of prodacts for admin
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
-    user_id = session.get("user_id")
+    user_email = session.get("user_email")
     
-    result = is_user_admin(user_id)
+    result = is_user_admin(user_email)
     if not result["success"]:
             return redirect(url_for('login', message=result["message"]))
         
     msg = request.args.get("message")
     
-    page = int(request.args.get("page", 1))
-    offset = (page - 1) * PRODUCTS_PER_PAGE
+    pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
     
-    products = get_products(offset=offset, limit=PRODUCTS_PER_PAGE)
-    
-    total_count = count_products()
-    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
-    
+    products = get_all_products_with_saler_info(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+
     if request.method == 'POST':
         result = delete_product_by_id(request.form)
-        return render_template('products.html', message=result["message"], products=products, page=page, total_pages=total_pages)
+        return render_template('products.html', message=result["message"], products=products, pagination_data=pagination_data, current_time=current_time)
     
-    return render_template('products.html', message=msg, products=products, page=page, total_pages=total_pages)
+    return render_template('products.html', message=msg, products=products, pagination_data=pagination_data, current_time=current_time)
 
 
 @app.route('/edit_user', methods=['GET', 'POST'])
@@ -305,17 +329,17 @@ def edit_user():
     """
     Render user's personal edit user page
     """
-    if "user_id" not in session:
+    if "user_email" not in session:
         return redirect(url_for('login', message="Please login first"))
     
-    user_id = session.get("user_id")
+    user_email = session.get("user_email")
     
-    result = is_user_admin(user_id)
+    result = is_user_admin(user_email)
     if not result["success"]:
             return redirect(url_for('login', message=result["message"]))
     
-    edited_user_id = request.args.get("user_id")
-    edited_user = get_user(edited_user_id)
+    edited_user_email = request.args.get("email")
+    edited_user = get_user(edited_user_email)
 
     if request.method == 'POST':
         result = edit_user_details(request.form)
