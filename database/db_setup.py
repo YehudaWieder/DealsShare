@@ -22,7 +22,7 @@ def create_tables():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_email TEXT NOT NULL,
+                seller_email TEXT NOT NULL,
                 name TEXT NOT NULL,
                 features TEXT,
                 free_shipping INTEGER DEFAULT 0,
@@ -33,7 +33,7 @@ def create_tables():
                 image_url TEXT,
                 link TEXT,
                 publish_date TEXT,
-                FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE
+                FOREIGN KEY (seller_email) REFERENCES users(email) ON DELETE CASCADE
             )
         """)
 
@@ -42,13 +42,16 @@ def create_tables():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ratings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_email TEXT NOT NULL,
+                user_email TEXT NOT NULL,        -- מי דירג
+                seller_email TEXT NOT NULL,      -- בעל המוצר
                 product_id INTEGER NOT NULL,
                 rating INTEGER CHECK(rating BETWEEN 1 AND 5),
                 FOREIGN KEY (user_email) REFERENCES users(email),
+                FOREIGN KEY (seller_email) REFERENCES users(email),
                 FOREIGN KEY (product_id) REFERENCES products(id)
             )
         """)
+
         
         # Favorites table
         cursor.execute("""

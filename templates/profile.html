@@ -165,6 +165,24 @@
                             <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
                             <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
 
+                            <!-- product rating -->
+                            <div class="">
+                                <h5>---- product rating ----</h5>
+                                {% set stars = product["avg_rating"]|round(0, 'floor')|int %}
+                                {% for i in range(5) %}
+                                    {% if i < stars %}
+                                        <!-- full star -->
+                                        <svg class="star full card-star" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                        </svg>
+                                    {% else %}
+                                        <!-- empty star -->
+                                        <svg class="star empty card-star" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </a>

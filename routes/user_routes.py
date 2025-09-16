@@ -1,7 +1,7 @@
 
 
 import bcrypt
-from database.user_crud import delete_user, get_user, get_user_avg_rating, update_user
+from database.user_crud import delete_user, get_user, get_seller_avg_rating, update_user
 from database.product_crud import count_user_favorites, count_user_products
 
 def get_user_with_stats(email):
@@ -13,7 +13,7 @@ def get_user_with_stats(email):
         return {"success": False, "message": "User not found."}
 
     user["product_count"] = count_user_products(email)
-    user["avg_rating"] = get_user_avg_rating(email)
+    user["avg_rating"] = get_seller_avg_rating(email)
 
     return user
 

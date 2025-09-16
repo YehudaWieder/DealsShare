@@ -129,10 +129,11 @@ def count_users():
     return run_query(query, fetch=True)[0][0]
 
 
-def get_user_avg_rating(user_email):
+def get_seller_avg_rating(seller_email):
     """
-    Get the average rating of all products created by a specific user.
+    Get the average rating of all products created by a specific seller.
     """
-    query = "SELECT AVG(rating) FROM ratings WHERE user_email = ?"
-    result = run_query(query, (user_email,), fetch=True)
+    query = "SELECT AVG(rating) FROM ratings WHERE seller_email = ?"
+    result = run_query(query, (seller_email,), fetch=True)
     return round(result[0][0], 1) if result and result[0][0] is not None else 0.0
+

@@ -4,8 +4,8 @@ import os
 from PIL import Image
 from werkzeug.utils import secure_filename
 import config
-from database.product_crud import count_products, create_product, delete_product, get_all_products, get_product, get_user_favorites, update_product
-from database.user_crud import get_user, get_user_avg_rating
+from database.product_crud import count_products, create_product, delete_product, get_all_products, get_product, get_product_avg_rating, get_user_favorites, get_user_products, update_product
+from database.user_crud import get_user, get_seller_avg_rating
 
 UPLOAD_FOLDER = config.UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = config.ALLOWED_EXTENSIONS
@@ -85,7 +85,7 @@ def insert_new_product(form_data, file, user_email) -> dict:
 
     # Insert product into DB (use a temp image_url initially)
     product_id = create_product(
-        user_email=user_email,
+        seller_email=user_email,
         name=name,
         features=features,
         free_shipping=free_shipping,
@@ -101,6 +101,7 @@ def insert_new_product(form_data, file, user_email) -> dict:
     # Handle image saving
     image_url = save_and_resize_image(file, product_id)
     if not image_url:
+        delete_product(product_id)
         return {"success": False, "message": "Invalid image."}
 
     update_product(product_id, image_url=image_url)
@@ -192,11 +193,23 @@ def get_all_products_with_saler_info(offset: int, limit: int) -> list:
     products = get_all_products(offset=offset, limit=limit)
     
     for product in products:
-        saller = get_user(product['user_email'])
-        product['seller_name'] = saller['first_name'] + ' ' + saller['last_name']  
-        product['seller_rating'] = get_user_avg_rating(product['user_email'])
+        seller = get_user(product['seller_email'])
+        product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']  
+        product['seller_rating'] = get_seller_avg_rating(seller['email'])
         
     return products
+
+def get_user_products_with_ratings(user_email: str, offset, limit) -> list:
+    """
+    Fetch all products of a specific user and include each product's average rating.
+    """
+    products = get_user_products(user_email, offset=offset, limit=limit)
+
+    for product in products:
+        product['avg_rating'] = get_product_avg_rating(product['id'])
+
+    return products
+
 
 def get_all_favorite_products_with_saler_info(user_email: str, offset: int, limit: int) -> list:
     """
@@ -206,9 +219,9 @@ def get_all_favorite_products_with_saler_info(user_email: str, offset: int, limi
     products = get_user_favorites(user_email=user_email, offset=offset, limit=limit)
     
     for product in products:
-        saller = get_user(product['user_email'])
-        product['seller_name'] = saller['first_name'] + ' ' + saller['last_name']  
-        product['seller_rating'] = get_user_avg_rating(product['user_email'])
+        seller = get_user(product['seller_email'])
+        product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']  
+        product['seller_rating'] = get_seller_avg_rating(product['seller_email'])
         
     return products
 
@@ -219,9 +232,9 @@ def get_product_with_saler_info(product_id: int) -> dict:
     """
     product = get_product(product_id)
 
-    saller = get_user(product['user_email'])
-    product['seller_name'] = saller['first_name'] + ' ' + saller['last_name']  
-    product['seller_rating'] = get_user_avg_rating(product['user_email'])
+    seller = get_user(product['seller_email'])
+    product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']  
+    product['seller_rating'] = get_seller_avg_rating(product['seller_email'])
     
     return product
 

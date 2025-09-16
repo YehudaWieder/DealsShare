@@ -8,10 +8,10 @@ from flask import Flask, render_template, request, redirect, session, url_for
 
 from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
-from routes.product_routes import delete_product_by_id, calculate_pagination_data, get_all_favorite_products_with_saler_info, get_product_with_saler_info, insert_new_product, update_product_in_db, get_all_products_with_saler_info
+from routes.product_routes import delete_product_by_id, calculate_pagination_data, get_all_favorite_products_with_saler_info, get_product_with_saler_info, get_user_products_with_ratings, insert_new_product, update_product_in_db, get_all_products_with_saler_info
 from routes.user_routes import delete_profile, edit_profile_details, get_user_with_stats
 from database.user_crud import count_users, get_all_users, get_user
-from database.product_crud import count_products, get_all_products, get_product, rate_product
+from database.product_crud import count_products, get_all_products, get_product, get_user_products, rate_product
 
 from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH
 
@@ -188,7 +188,7 @@ def profile():
     
     pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
     
-    products = get_all_products(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+    products = get_user_products_with_ratings(user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
     
     if request.method == 'POST':
         which_form = request.form.get('submit_button')

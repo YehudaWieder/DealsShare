@@ -40,7 +40,7 @@
 
                 <div class="dropdown">
                     <a href="{{ url_for('profile') }}">My Profile</a>
-                    {% if session.get('user_id') %}
+                    {% if session.get('user_email') %}
                         <a href="{{ url_for('logout') }}">Logout</a>
                     {% else %}
                         <a href="{{ url_for('login') }}">Login</a>
@@ -74,7 +74,7 @@
                         <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
                             alt="{{ product['name'] }}" class="product-image">
 
-                        <div class="product-info">
+                        <div class="">
                             {% set features_list = product["features"].split(",") if product["features"] else [] %}
                             {% set publish_date = product["publish_date"] | default('1970-01-01') %}
                             {% set days_since_publish = ( current_time  - publish_date).days %}
@@ -102,8 +102,8 @@
                                 <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
 
                                 <!-- Seller Info -->
-                                <h5 class="seller-name">seller: {{ product["seller_name"] }}</h5>
                                 <div class="">
+                                    <h5 class="seller-name"> seller: {{ product["seller_name"] }} </h5>
                                     {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
                                     {% for i in range(5) %}
                                         {% if i < stars %}
@@ -118,11 +118,10 @@
                                             </svg>
                                         {% endif %}
                                     {% endfor %}
+                                    <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
+                                        <button class="btn">Buy Now</button>
+                                    </a>
                                 </div>
-
-                                <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
-                                    <button class="btn">Buy Now</button>
-                                </a>
                             </div>
                         </div>
                     </a>
