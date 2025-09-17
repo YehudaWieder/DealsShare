@@ -19,21 +19,21 @@
             <div class="categories-menu">
                 <button class="bar-button">Categories</button>
                 {% set categories = [
-                    {"name": "Home", "image": "uploads/image1.jpg"},
-                    {"name": "Electronics", "image": "uploads/image2.jpg"},
-                    {"name": "Clothing", "image": "uploads/image3.jpg"},
-                    {"name": "Shoes", "image": "uploads/image4.jpg"},
-                    {"name": "Toys", "image": "uploads/image5.jpg"},
-                    {"name": "Kitchen", "image": "uploads/image6.jpg"},
-                    {"name": "Sports", "image": "uploads/image7.jpg"},
-                    {"name": "Office", "image": "uploads/image8.jpg"}
+                    {"name": "Home", "image": "img/Home.jpeg"},
+                    {"name": "Electronics", "image": "img/Electronics.jpeg"},
+                    {"name": "Clothing", "image": "img/Clothing.jpeg"},
+                    {"name": "Shoes", "image": "img/Shoes.jpeg"},
+                    {"name": "Toys", "image": "img/Toys.jpeg"},
+                    {"name": "Kitchen", "image": "img/Kitchen.jpeg"},
+                    {"name": "Sports", "image": "img/Sports.jpeg"},
+                    {"name": "Office", "image": "img/Office.jpeg"}
                 ] %}
 
                 <div class="mega-dropdown">
                     {% for cat in categories %}
-                        <a href="{{ url_for('category', category_name=cat['name']) }}">
-                            <img src="{{ url_for('static', filename=cat['image']) }}" class="menu-img">
-                            {{ cat.name }}
+                        <a href="{{ url_for('category', category_name=cat['name']) }}" 
+                            style='background-image: url("{{ url_for("static", filename=cat["image"]) }}");'>
+                            <span>{{ cat.name }}</span>
                         </a>
                     {% endfor %}
                 </div>

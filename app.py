@@ -58,12 +58,13 @@ def category(category_name):
     Render products by category page
     """
     user_email = session.get("user_email")
+    user = get_user(user_email)
 
     pagination_data = calculate_pagination_data_by_category(category_name, int(request.args.get("page", 1)))
     
     products = get_products_by_category_with_seller_info(category_name, user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
 
-    return render_template('category.html', products=products, pagination_data=pagination_data, current_time=current_time)
+    return render_template('category.html', category_name=category_name, products=products, pagination_data=pagination_data, current_time=current_time, user=user)
 
 @app.route('/single_product/<int:product_id>')
 def single_product(product_id):

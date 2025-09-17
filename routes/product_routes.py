@@ -135,10 +135,12 @@ def update_product_in_db(form_data, file) -> dict:
         return {"success": False, "message": "Product not found."}
 
     # Handle image upload
-    if isinstance(file, str) and file:
-        image_url = file
-    else:
+    try:
+        img = Image.open(file)
+        img.verify()
         image_url = save_and_resize_image(file, product_id=product_id)
+    except:
+        image_url = existing_product['image_url']
     if not image_url:
         return {"success": False, "message": "Invalid image."}
 

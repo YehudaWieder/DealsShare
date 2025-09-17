@@ -1,0 +1,141 @@
+<!-- Main Content -->
+<main class="container">
+    {% for product in products %}
+            <div class="product-card">
+                <div class="product-icons">
+                    <form class="unstyled-form" method="POST" action="{{ url_for('update_favorite_status', product_id=product['id']) }}">
+                        <button type="submit" class="unstyled-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart product-icon {% if product["is_favorite"] %}favorited{% endif %}" 
+                                data-product-id="{{ product['id'] }}" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                            </svg>
+                        </button>
+                    </form>
+
+                    <!-- Share container -->
+                    <div class="share-dropdown">
+                        <!-- Share icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-share product-icon" viewBox="0 0 16 16">
+                            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
+                        </svg>
+
+                        <!-- Dropdown menu with inline SVG icons -->
+                        <div class="share-menu">
+                            <!-- WhatsApp -->
+                            <a href="https://api.whatsapp.com/send?text=http://127.0.0.1:5000/single_product/{{ product['id'] }}" target="_blank" title="Share on WhatsApp">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path fill="#25D366" d="M20.52 3.48A11.9 11.9 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.15 1.6 5.95L0 24l6.22-1.63A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52z"/>
+                                    <path fill="#fff" d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.06 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35z"/>
+                                </svg>
+                            </a>
+
+                            <!-- Twitter -->
+                            <a href="https://twitter.com/intent/tweet?url=http://127.0.0.1:5000/single_product/{{ product['id'] }}" target="_blank" title="Share on Twitter">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="12" fill="#1DA1F2"/>
+                                    <path fill="#fff" d="M19.46 7.34c-.58.26-1.2.43-1.85.51a3.24 3.24 0 0 0 1.42-1.79 6.4 6.4 0 0 1-2.05.78 3.22 3.22 0 0 0-5.5 2.94 9.13 9.13 0 0 1-6.63-3.36 3.22 3.22 0 0 0 1 4.3c-.5-.02-1-.15-1.42-.39v.04a3.23 3.23 0 0 0 2.58 3.16c-.25.07-.53.1-.81.1-.2 0-.39-.02-.58-.05a3.23 3.23 0 0 0 3.01 2.24A6.47 6.47 0 0 1 5 17.54a9.13 9.13 0 0 0 4.94 1.45c5.92 0 9.16-4.91 9.16-9.16v-.42c.63-.45 1.18-1.02 1.61-1.66z"/>
+                                </svg>
+
+                            </a>
+
+                            <!-- Facebook -->
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=http://127.0.0.1:5000/single_product/{{ product['id'] }}" target="_blank" title="Share on Facebook">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="12" fill="#1877F2"/>
+                                    <path fill="#fff" d="M13.34 12h1.8l.27-2.1h-2.07V8.68c0-.61.17-1.02 1.05-1.02h1.12V5.78c-.19-.03-.83-.08-1.58-.08-1.56 0-2.63.95-2.63 2.7v1.5H9.4V12h1.9v6.22c.38.06.77.1 1.17.1s.79-.03 1.17-.1V12z"/>
+                                </svg>
+
+                            </a>
+
+                            <!-- Gmail Web -->
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=&su=Check+this+product&body=http://127.0.0.1:5000/single_product/{{ product['id'] }}" target="_blank" title="Share via Gmail">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="12" fill="#EA4335"/>
+                                    <path fill="#fff" d="M17.64 7.5H6.36c-.72 0-1.31.58-1.31 1.31v6.38c0 .73.59 1.31 1.31 1.31h11.28c.73 0 1.31-.58 1.31-1.31V8.81c0-.73-.58-1.31-1.31-1.31zm-.16 2.04-5.48 3.49-5.48-3.49V8.96l5.48 3.49 5.48-3.49v.58z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('single_product', product_id=product['id']) }}">
+
+                    <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
+                        alt="{{ product['name'] }}" class="product-image">
+
+                    <div class="">
+                        {% set features_list = product["features"].split(",") if product["features"] else [] %}
+                        {% set publish_date = product["publish_date"] | default('1970-01-01') %}
+                        {% set days_since_publish = ( current_time  - publish_date).days %}
+
+                        {% if days_since_publish >= 0 %}
+                            <div class="badge sale-ending">Deal Ending Soon!</div>
+                        {% endif %}
+                        
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product["name"] }}</h3>
+
+                            {% if features_list %}
+                                <ul class="features-list">
+                                    {% for feat in features_list %}
+                                        <li>{{ feat.strip() }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if product["free_shipping"] %}
+                                <span class="free-shipping-label">Free Shipping</span>
+                            {% endif %}
+
+                            <div>
+                                <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
+                                <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+                            </div>
+
+                            <!-- Seller Info -->
+                            <div class="">
+                                <h5 class="seller-name"> seller: {{ product["seller_name"] }} </h5>
+                                {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
+                                {% for i in range(5) %}
+                                    {% if i < stars %}
+                                        <!-- full star -->
+                                        <svg class="star full card-star" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                        </svg>
+                                    {% else %}
+                                        <!-- empty star -->
+                                        <svg class="star empty card-star" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                                <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
+                                    <button class="btn">Buy Now</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+    {% endfor %}
+</main>
+
+<!-- pagination Button -->
+<div class="pagination">
+    {% if pagination_data["page"] > 1 %}
+        <a href="{{ url_for('home', page=pagination_data["page"]-1) }}">&laquo; Previous</a>
+    {% endif %}
+
+    {% for p in range(1, pagination_data["total_pages"] + 1) %}
+        {% if p == pagination_data["page"] %}
+            <span class="current-page">{{ p }}</span>
+        {% else %}
+            <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if pagination_data["page"] < pagination_data["total_pages"] %}
+        <a href="{{ url_for('home', page=pagination_data["page"]+1) }}">Next &raquo;</a>
+    {% endif %}
+</div>
