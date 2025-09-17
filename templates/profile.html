@@ -15,14 +15,38 @@
         </a>
 
         <div class="header-right">
+            <div class="categories-menu">
+                <button class="bar-button">Categories</button>
+                {% set categories = [
+                    {"name": "Home", "image": "uploads/image1.jpg"},
+                    {"name": "Electronics", "image": "uploads/image2.jpg"},
+                    {"name": "Clothing", "image": "uploads/image3.jpg"},
+                    {"name": "Shoes", "image": "uploads/image4.jpg"},
+                    {"name": "Toys", "image": "uploads/image5.jpg"},
+                    {"name": "Kitchen", "image": "uploads/image6.jpg"},
+                    {"name": "Sports", "image": "uploads/image7.jpg"},
+                    {"name": "Office", "image": "uploads/image8.jpg"}
+                ] %}
+
+                <div class="mega-dropdown">
+                    {% for cat in categories %}
+                        <a href="{{ url_for('category', category_name=cat['name']) }}">
+                            <img src="{{ url_for('static', filename=cat['image']) }}" class="menu-img">
+                            {{ cat.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <a href="{{ url_for('add_product') }}">
+                <button class="bar-button">Share products</button>
+            </a>
+            
             <a href="{{ url_for('home') }}">
+                <!--home icon-->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-house-door bar-icon" viewBox="0 0 16 16">
                     <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
                 </svg>
-            </a>
-
-            <a href="{{ url_for('add_product') }}">
-                <button class="bar-button">Share Product</button>
             </a>
 
             <a href="{{ url_for('favorites') }}">
@@ -133,12 +157,12 @@
                     </form>
                 </div>
                 
-            <a href="{{ url_for('product', product_id=product['id']) }}">
+            <a href="{{ url_for('single_product', product_id=product['id']) }}">
 
                     <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
                         alt="{{ product['name'] }}" class="product-image">
 
-                    <div class="product-info">
+                    <div class="">
                         {% set features_list = product["features"].split(",") if product["features"] else [] %}
                         {% set publish_date = product["publish_date"] | default('1970-01-01') %}
                         {% set days_since_publish = ( current_time  - publish_date).days %}
@@ -162,8 +186,10 @@
                                 <span class="free-shipping-label">Free Shipping</span>
                             {% endif %}
 
-                            <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
-                            <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+                            <div>
+                                <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
+                                <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+                            </div>
 
                             <!-- product rating -->
                             <div class="">

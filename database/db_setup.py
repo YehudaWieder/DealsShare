@@ -42,13 +42,13 @@ def create_tables():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ratings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_email TEXT NOT NULL,        -- מי דירג
-                seller_email TEXT NOT NULL,      -- בעל המוצר
+                user_email TEXT NOT NULL,
+                seller_email TEXT NOT NULL,
                 product_id INTEGER NOT NULL,
                 rating INTEGER CHECK(rating BETWEEN 1 AND 5),
-                FOREIGN KEY (user_email) REFERENCES users(email),
-                FOREIGN KEY (seller_email) REFERENCES users(email),
-                FOREIGN KEY (product_id) REFERENCES products(id)
+                FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE SET NULL,
+                FOREIGN KEY (seller_email) REFERENCES users(email) ON DELETE CASCADE,
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
             )
         """)
 
@@ -59,8 +59,8 @@ def create_tables():
                 user_email TEXT NOT NULL,
                 product_id INTEGER NOT NULL,
                 PRIMARY KEY (user_email, product_id),
-                FOREIGN KEY (user_email) REFERENCES users(email),
-                FOREIGN KEY (product_id) REFERENCES products(id)
+                FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE,
+                FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
             )
         """)
 

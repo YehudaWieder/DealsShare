@@ -4,7 +4,7 @@ import os
 from PIL import Image
 from werkzeug.utils import secure_filename
 import config
-from database.product_crud import count_products, create_product, delete_product, get_all_products, get_product, get_product_avg_rating, get_user_favorites, get_user_products, update_product
+from database.product_crud import count_products, count_products_by_category, count_user_favorites, count_user_products, create_product, delete_product, get_all_products, get_product, get_product_avg_rating, get_products_by_category, get_user_favorite_ids, get_user_favorites, get_user_products, update_product
 from database.user_crud import get_user, get_seller_avg_rating
 
 UPLOAD_FOLDER = config.UPLOAD_FOLDER
@@ -183,27 +183,45 @@ def delete_product_by_id(form_data) -> dict:
             
         return {"success": True, "message": "Product deleted successfully."}
     except Exception as e:
+        print({"success": False, "message": f"Error while deleting product: {str(e)}"})
         return {"success": False, "message": f"Error while deleting product: {str(e)}"}
 
-def get_all_products_with_saler_info(offset: int, limit: int) -> list:
+def get_all_products_with_seller_info(user_email: str, offset: int, limit: int) -> list:
     """
-    Fetch all products along with their saler info from the database with pagination.
-    Returns a list of products with saler details.
+    Fetch all products along with their seller info and whether they are favorited by this user.
     """
     products = get_all_products(offset=offset, limit=limit)
-    
+    favorite_ids = get_user_favorite_ids(user_email)
+
     for product in products:
         seller = get_user(product['seller_email'])
-        product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']  
+        product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']
         product['seller_rating'] = get_seller_avg_rating(seller['email'])
-        
+        product['is_favorite'] = product['id'] in favorite_ids
+
+    return products
+
+def get_products_by_category_with_seller_info(category_name: str, user_email: str, offset: int, limit: int) -> list:
+    """
+    Fetch products by category along with their seller info and whether they are favorited by this user.
+    """
+
+    products = get_products_by_category(category_name, offset=offset, limit=limit)
+    favorite_ids = get_user_favorite_ids(user_email)
+
+    for product in products:
+        seller = get_user(product['seller_email'])
+        product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']
+        product['seller_rating'] = get_seller_avg_rating(seller['email'])
+        product['is_favorite'] = product['id'] in favorite_ids
+
     return products
 
 def get_user_products_with_ratings(user_email: str, offset, limit) -> list:
     """
     Fetch all products of a specific user and include each product's average rating.
     """
-    products = get_user_products(user_email, offset=offset, limit=limit)
+    products = get_user_products(seller_email=user_email, offset=offset, limit=limit)
 
     for product in products:
         product['avg_rating'] = get_product_avg_rating(product['id'])
@@ -225,16 +243,20 @@ def get_all_favorite_products_with_saler_info(user_email: str, offset: int, limi
         
     return products
 
-def get_product_with_saler_info(product_id: int) -> dict:
+def get_product_with_seller_info(user_email, product_id: int) -> dict:
     """
     Fetch a single product along with its saler info from the database by product ID.
     Returns a dictionary with product and saler details.
     """
     product = get_product(product_id)
+    favorite_ids = get_user_favorite_ids(user_email)
+
 
     seller = get_user(product['seller_email'])
-    product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']  
+    product['seller_name'] = seller['first_name'] + ' ' + seller['last_name']
+    product['seller_email'] = seller['email']
     product['seller_rating'] = get_seller_avg_rating(product['seller_email'])
+    product['is_favorite'] = product['id'] in favorite_ids
     
     return product
 
@@ -259,3 +281,44 @@ def calculate_pagination_data(page: int) -> dict:
         "total_pages": total_pages
     }
     
+def calculate_pagination_data_by_category(category_name: str, page: int) -> dict:
+    """
+    Calculate pagination data for products filtered by category.
+    """
+    offset = (page - 1) * PRODUCTS_PER_PAGE
+    total_count = count_products_by_category(category_name)
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+
+    return {
+        "page": page,
+        "offset": offset,
+        "total_pages": total_pages
+    }
+
+def calculate_pagination_data_favorites(user_email: str, page: int) -> dict:
+    """
+    Calculate pagination data for the user's favorite products.
+    """
+    offset = (page - 1) * PRODUCTS_PER_PAGE
+    total_count = count_user_favorites(user_email)
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+
+    return {
+        "page": page,
+        "offset": offset,
+        "total_pages": total_pages
+    }
+
+def calculate_pagination_data_by_user(user_email: str, page: int) -> dict:
+    """
+    Calculate pagination data for products posted by a specific user.
+    """
+    offset = (page - 1) * PRODUCTS_PER_PAGE
+    total_count = count_user_products(user_email)
+    total_pages = ceil(total_count / PRODUCTS_PER_PAGE)
+
+    return {
+        "page": page,
+        "offset": offset,
+        "total_pages": total_pages
+    }

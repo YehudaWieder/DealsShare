@@ -4,14 +4,14 @@ import os
 from threading import Timer
 import time
 import webbrowser
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, jsonify, render_template, request, redirect, session, url_for
 
 from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
-from routes.product_routes import delete_product_by_id, calculate_pagination_data, get_all_favorite_products_with_saler_info, get_product_with_saler_info, get_user_products_with_ratings, insert_new_product, update_product_in_db, get_all_products_with_saler_info
+from routes.product_routes import calculate_pagination_data_by_category, calculate_pagination_data_by_user, calculate_pagination_data_favorites, delete_product_by_id, calculate_pagination_data, get_all_favorite_products_with_saler_info, get_product_with_seller_info, get_products_by_category_with_seller_info, get_user_products_with_ratings, insert_new_product, update_product_in_db, get_all_products_with_seller_info
 from routes.user_routes import delete_profile, edit_profile_details, get_user_with_stats
 from database.user_crud import count_users, get_all_users, get_user
-from database.product_crud import count_products, get_all_products, get_product, get_user_products, rate_product
+from database.product_crud import count_products, get_all_products, get_product, get_user_products, rate_product, toggle_favorite
 
 from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH
 
@@ -48,21 +48,34 @@ def home():
     
     pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
     
-    products = get_all_products_with_saler_info(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+    products = get_all_products_with_seller_info(user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
 
     return render_template('home.html', message=msg, products=products, pagination_data=pagination_data, user=user, current_time=current_time)
 
+@app.route('/category/<category_name>')
+def category(category_name):
+    """
+    Render products by category page
+    """
+    user_email = session.get("user_email")
 
-@app.route('/product/<int:product_id>')
-def product(product_id):
+    pagination_data = calculate_pagination_data_by_category(category_name, int(request.args.get("page", 1)))
+    
+    products = get_products_by_category_with_seller_info(category_name, user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+
+    return render_template('category.html', products=products, pagination_data=pagination_data, current_time=current_time)
+
+@app.route('/single_product/<int:product_id>')
+def single_product(product_id):
     """
     Render a specific product page by product_id
     """
+    user_email = session.get("user_email")
     msg = request.args.get("message")
     
-    product = get_product_with_saler_info(product_id)
+    product = get_product_with_seller_info(user_email=user_email, product_id=product_id)
 
-    return render_template('product.html', message=msg, product=product, current_time=current_time)
+    return render_template('single_product.html', message=msg, product=product, current_time=current_time)
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
@@ -81,7 +94,7 @@ def add_product():
 
         result = insert_new_product(form_data, file, user_email)
         if result["success"]:
-            return redirect(url_for('product', product_id=result["product_id"], message=result["message"]))
+            return redirect(url_for('single_product', product_id=result["product_id"], message=result["message"]))
         else:
             return render_template('add_product.html', message=result["message"])
     return render_template('add_product.html', message=msg)
@@ -99,7 +112,7 @@ def edit_product(product_id):
     user = get_user(session.get("user_email"))
     product = get_product(product_id)
     
-    if product["user_email"] != session.get("user_email") and user["role"] != "admin":
+    if product["seller_email"] != session.get("user_email") and user["role"] != "admin":
         return redirect(url_for('home', message="You are not authorized to edit this product"))
     
     if request.method == 'POST':
@@ -108,7 +121,7 @@ def edit_product(product_id):
 
         result = update_product_in_db(form_data, file)
         if result["success"]:
-            return redirect(url_for('product', product_id=product_id, message=result["message"]))
+            return redirect(url_for('single_product', product_id=product_id, message=result["message"]))
         else:
             return render_template('edit_product.html', message=result["message"], product=product)
     
@@ -127,7 +140,19 @@ def rating(product_id):
     
     rate_product(user_email, product_id, rating)
         
-    return redirect(url_for('product', product_id=product_id))
+    return redirect(url_for('single_product', product_id=product_id))
+
+@app.route('/update_favorite_status/<int:product_id>', methods=['POST'])
+def update_favorite_status(product_id):
+    if "user_email" not in session:
+        return redirect(url_for('login', message="Please login first"))
+    
+    user_email = session["user_email"]
+
+    is_favorite = toggle_favorite(user_email, product_id)
+
+    previous_page = request.headers.get("Referer", url_for("login"))
+    return redirect(previous_page)
 
 
 """ ------------------------
@@ -186,7 +211,7 @@ def profile():
     user_email = session.get("user_email")
     user = get_user_with_stats(user_email)
     
-    pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
+    pagination_data = calculate_pagination_data_by_user(user_email=user_email, page=int(request.args.get("page", 1)))
     
     products = get_user_products_with_ratings(user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
     
@@ -203,8 +228,8 @@ def profile():
         elif which_form == 'delete product':
             result = delete_product_by_id(request.form)
 
-            pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
-            products = get_all_products(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+            pagination_data = calculate_pagination_data_by_user(user_email=user_email, page=int(request.args.get("page", 1)))
+            products = get_user_products_with_ratings(user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
             
             return render_template('profile.html', message=result['message'], products=products, pagination_data=pagination_data, user=user, current_time=current_time)
         
@@ -242,9 +267,9 @@ def favorites():
     user_email = session.get("user_email")
     user = get_user_with_stats(user_email)
     
-    pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
+    pagination_data = calculate_pagination_data_favorites(user_email=user_email, page=int(request.args.get("page", 1)))
     
-    products = get_all_favorite_products_with_saler_info(user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+    products = get_all_favorite_products_with_saler_info(user_email=user_email, offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
     
     return render_template('favorites.html', message=msg, products=products, pagination_data=pagination_data, user=user, current_time=current_time)
 
@@ -315,7 +340,7 @@ def products():
     
     pagination_data = calculate_pagination_data(int(request.args.get("page", 1)))
     
-    products = get_all_products_with_saler_info(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
+    products = get_all_products_with_seller_info(offset=pagination_data["offset"], limit=PRODUCTS_PER_PAGE)
 
     if request.method == 'POST':
         result = delete_product_by_id(request.form)

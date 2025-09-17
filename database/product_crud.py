@@ -88,6 +88,37 @@ def get_all_products(offset=0, limit=PRODUCTS_PER_PAGE):
         }
         for row in result
     ]
+    
+def get_products_by_category(category_name, offset=0, limit=PRODUCTS_PER_PAGE):
+    """
+    Retrieve a range of products filtered by category.
+    """
+    query = """
+        SELECT seller_email, id, name, features, free_shipping, description, 
+            category, regular_price, discount_price, image_url, link, publish_date
+        FROM products
+        WHERE LOWER(category) = LOWER(?)
+        LIMIT ? OFFSET ?
+        """
+    result = run_query(query, (category_name, limit, offset), fetch=True)
+
+    return [
+        {
+            "seller_email": row[0],
+            "id": row[1],
+            "name": row[2],
+            "features": row[3],
+            "free_shipping": bool(row[4]),
+            "description": row[5],
+            "category": row[6],
+            "regular_price": row[7],
+            "discount_price": row[8],
+            "image_url": row[9],
+            "product_link": row[10],
+            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S.%f")
+        }
+        for row in result
+    ]
 
 
 def get_user_products(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
@@ -119,7 +150,7 @@ def get_user_products(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
     ]
 
 
-def get_user_favorites(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
+def get_user_favorites(user_email, offset=0, limit=PRODUCTS_PER_PAGE):
     """
     Retrieve all products liked by a specific user.
     Returns a list of product dicts.
@@ -130,10 +161,10 @@ def get_user_favorites(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
                p.image_url, p.link, p.publish_date
         FROM products p
         JOIN favorites f ON p.id = f.product_id
-        WHERE f.seller_email = ?
+        WHERE f.user_email = ?
         LIMIT ? OFFSET ?
     """
-    result = run_query(query, (seller_email, limit, offset), fetch=True)
+    result = run_query(query, (user_email, limit, offset), fetch=True)
     return [
         {
             "seller_email": row[0],
@@ -152,6 +183,16 @@ def get_user_favorites(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
         for row in result
     ]
 
+def get_user_favorite_ids(user_email: str) -> set:
+    """
+    Return a set of product IDs that this user has marked as favorites.
+    """
+    rows = run_query(
+        "SELECT product_id FROM favorites WHERE user_email = ?",
+        (user_email,),
+        fetch=True
+    )
+    return {row[0] for row in rows}
 
 def update_product(product_id, name=None, features=None, free_shipping=None, description=None,
                    category=None, regular_price=None, discount_price=None,
@@ -212,17 +253,25 @@ def count_products():
     query = "SELECT COUNT(*) FROM products"
     return run_query(query, fetch=True)[0][0]
 
+def count_products_by_category(category_name):
+    """
+    Return the total number of products in the database for a specific category.
+    """
+    query = "SELECT COUNT(*) FROM products WHERE LOWER(category) = LOWER(?)"
+    result = run_query(query, (category_name,), fetch=True)
+    return result[0][0] if result else 0
+
 def count_user_products(seller_email):
     """Return the total number of products for a specific user."""
     query = "SELECT COUNT(*) FROM products WHERE seller_email = ?"
     return run_query(query, (seller_email,), fetch=True)[0][0]
 
-def count_user_favorites(seller_email):
+def count_user_favorites(user_email):
     """
     Count the number of products liked by a specific user.
     """
-    query = "SELECT COUNT(*) FROM favorites WHERE seller_email = ?"
-    result = run_query(query, (seller_email,), fetch=True)
+    query = "SELECT COUNT(*) FROM favorites WHERE user_email = ?"
+    result = run_query(query, (user_email,), fetch=True)
     return result[0][0] if result else 0
 
 def rate_product(user_email, product_id, rating):
@@ -237,10 +286,11 @@ def rate_product(user_email, product_id, rating):
         (product_id,),
         fetch=True
     )
-    if not product:
-        return False  # product not found
-
+    
     seller_email = product[0][0]
+
+    if not product or seller_email == user_email:
+        return False  # product not found or user is the seller
 
     # Check if this user has already rated this product
     existing = run_query(
@@ -275,3 +325,39 @@ def get_product_avg_rating(product_id):
     query = "SELECT AVG(rating) FROM ratings WHERE product_id = ?"
     result = run_query(query, (product_id,), fetch=True)
     return round(result[0][0], 1) if result and result[0][0] is not None else 0.0
+
+def toggle_favorite(user_email, product_id):
+    """
+    Add or remove a product from user's favorites.
+    If the product is already favorited by the user, remove it.
+    Otherwise, add it.
+    Returns True if added, False if removed.
+    """
+
+    product = run_query(
+        "SELECT id FROM products WHERE id = ?",
+        (product_id,),
+        fetch=True
+    )
+
+    if not product:
+        return None
+
+    existing = run_query(
+        "SELECT 1 FROM favorites WHERE user_email = ? AND product_id = ?",
+        (user_email, product_id),
+        fetch=True
+    )
+
+    if existing:
+        run_query(
+            "DELETE FROM favorites WHERE user_email = ? AND product_id = ?",
+            (user_email, product_id)
+        )
+        return False
+    else:
+        run_query(
+            "INSERT INTO favorites (user_email, product_id) VALUES (?, ?)",
+            (user_email, product_id)
+        )
+        return True

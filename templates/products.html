@@ -75,12 +75,12 @@
                     </form>
                 </div>
                 
-                <a href="{{ url_for('product', product_id=product['id']) }}">
+                <a href="{{ url_for('single_product', product_id=product['id']) }}">
 
                     <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
                         alt="{{ product['name'] }}" class="product-image">
 
-                    <div class="product-info">
+                    <div>
                         {% set features_list = product["features"].split(",") if product["features"] else [] %}
                         {% set publish_date = product["publish_date"] | default('1970-01-01') %}
                         {% set days_since_publish = ( current_time  - publish_date).days %}
@@ -104,8 +104,10 @@
                                 <span class="free-shipping-label">Free Shipping</span>
                             {% endif %}
 
-                            <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
-                            <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+                            <div>
+                                <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
+                                <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
+                            </div>
 
                             <!-- Seller Info -->
                             <h5 class="seller-name">seller: {{ product["seller_name"] }}</h5>
