@@ -1,7 +1,9 @@
 
 
+from math import ceil
 import bcrypt
-from database.user_crud import delete_user, get_user, get_seller_avg_rating, update_user
+from config import USERS_PER_PAGE
+from database.user_crud import count_users, delete_user, get_all_users, get_user, get_seller_avg_rating, update_user
 from database.product_crud import count_user_favorites, count_user_products
 
 def get_user_with_stats(email):
@@ -16,6 +18,18 @@ def get_user_with_stats(email):
     user["avg_rating"] = get_seller_avg_rating(email)
 
     return user
+
+def get_all_users_with_stats():
+    """
+    Retrieve all users along with their product statistics.
+    """
+    users = get_all_users()
+
+    for user in users:
+        user["product_count"] = count_user_products(user["email"])
+        user["avg_rating"] = get_seller_avg_rating(user["email"])
+        
+    return users
 
 def edit_profile_details(form_data) -> dict:
     """
@@ -70,3 +84,16 @@ def delete_profile(form_data) -> dict:
     except Exception as e:
         return {"success": False, "message": f"Error while deleting user: {str(e)}"}
     
+def calculate_users_pagination_data(page: int) -> dict:
+    """
+    Calculate pagination data for users.
+    """
+    offset = (page - 1) * USERS_PER_PAGE
+    total_count = count_users()
+    total_pages = ceil(total_count / USERS_PER_PAGE)
+
+    return {
+        "page": page,
+        "offset": offset,
+        "total_pages": total_pages
+    }

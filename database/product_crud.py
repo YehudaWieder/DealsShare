@@ -34,6 +34,13 @@ def create_product(seller_email, name, features, free_shipping, description,
     ), return_lastrowid=True)
     return product_id
 
+def delete_old_products():
+    """Delete products older than 10 days."""
+    query = """
+        DELETE FROM products
+        WHERE julianday('now') - julianday(publish_date) > 10
+    """
+    run_query(query)
 
 def get_product(product_id):
     """Retrieve a single product by ID."""
@@ -57,50 +64,37 @@ def get_product(product_id):
             "discount_price": row[8],
             "image_url": row[9],
             "product_link": row[10],
-            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S.%f")
+            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S")
         }
     return None
 
 
-def get_all_products(offset=0, limit=PRODUCTS_PER_PAGE):
-    """Retrieve a range of products with all fields."""
-    query = """
+def get_all_products(offset=0, limit=PRODUCTS_PER_PAGE, filters: dict = None):
+    """Retrieve products with dynamic filtering."""
+    filters = filters or {}
+    where_clauses = ["1=1"]
+    params = []
+
+    # Filter: free shipping
+    if filters.get("free_shipping"):
+        where_clauses.append("free_shipping = 1")
+
+    # Filter: search query
+    if search_query := filters.get("search_query"):
+        where_clauses.append("name LIKE ?")
+        params.append(f"%{search_query}%")
+
+    where_sql = " AND ".join(where_clauses)
+
+    query = f"""
         SELECT seller_email, id, name, features, free_shipping, description, 
                category, regular_price, discount_price, image_url, link, publish_date
         FROM products
+        WHERE {where_sql}
         LIMIT ? OFFSET ?
     """
-    result = run_query(query, (limit, offset), fetch=True)
-    return [
-        {
-            "seller_email": row[0],
-            "id": row[1],
-            "name": row[2],
-            "features": row[3],
-            "free_shipping": bool(row[4]),
-            "description": row[5],
-            "category": row[6],
-            "regular_price": row[7],
-            "discount_price": row[8],
-            "image_url": row[9],
-            "product_link": row[10],
-            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S.%f")
-        }
-        for row in result
-    ]
     
-def get_products_by_category(category_name, offset=0, limit=PRODUCTS_PER_PAGE):
-    """
-    Retrieve a range of products filtered by category.
-    """
-    query = """
-        SELECT seller_email, id, name, features, free_shipping, description, 
-            category, regular_price, discount_price, image_url, link, publish_date
-        FROM products
-        WHERE LOWER(category) = LOWER(?)
-        LIMIT ? OFFSET ?
-        """
-    result = run_query(query, (category_name, limit, offset), fetch=True)
+    result = run_query(query, params + [limit, offset], fetch=True)
 
     return [
         {
@@ -115,22 +109,42 @@ def get_products_by_category(category_name, offset=0, limit=PRODUCTS_PER_PAGE):
             "discount_price": row[8],
             "image_url": row[9],
             "product_link": row[10],
-            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S.%f")
+            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S")
         }
         for row in result
     ]
 
+    
+def get_products_by_category(category_name, offset=0, limit=PRODUCTS_PER_PAGE, filters: dict = None):
+    """
+    Retrieve a range of products filtered by category, with optional extra filters.
+    """
+    filters = filters or {}
+    where_clauses = ["LOWER(category) = LOWER(?)"]
+    params = [category_name]
 
-def get_user_products(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
-    """Retrieve a range of products for a specific user."""
-    query = """
+    # Filter: free shipping
+    if filters.get("free_shipping"):
+        where_clauses.append("free_shipping = 1")
+
+    # Filter: search query
+    if search_query := filters.get("search_query"):
+        where_clauses.append("name LIKE ?")
+        params.append(f"%{search_query}%")
+
+    where_sql = " AND ".join(where_clauses)
+
+    query = f"""
         SELECT seller_email, id, name, features, free_shipping, description, 
                category, regular_price, discount_price, image_url, link, publish_date
         FROM products
-        WHERE seller_email = ?
+        WHERE {where_sql}
         LIMIT ? OFFSET ?
     """
-    result = run_query(query, (seller_email, limit, offset), fetch=True)
+
+    params.extend([limit, offset])
+    result = run_query(query, tuple(params), fetch=True)
+
     return [
         {
             "seller_email": row[0],
@@ -144,27 +158,85 @@ def get_user_products(seller_email, offset=0, limit=PRODUCTS_PER_PAGE):
             "discount_price": row[8],
             "image_url": row[9],
             "product_link": row[10],
-            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S.%f")
+            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S")
         }
         for row in result
     ]
 
 
-def get_user_favorites(user_email, offset=0, limit=PRODUCTS_PER_PAGE):
+def get_user_products(seller_email, offset=0, limit=PRODUCTS_PER_PAGE, filters: dict = None):
+    """Retrieve a range of products for a specific user."""
+    filters = filters or {}
+    where_clauses = ["seller_email = ?"]
+    params = [seller_email]
+    
+    if filters.get("free_shipping"):
+        where_clauses.append("free_shipping = 1")
+        
+    if search_query := filters.get("search_query"):
+        where_clauses.append("name LIKE ?")
+        params.append(f"%{search_query}%")
+    
+    where_sql = " AND ".join(where_clauses)
+    params.extend([limit, offset])
+    
+    query = f"""
+        SELECT seller_email, id, name, features, free_shipping, description, 
+               category, regular_price, discount_price, image_url, link, publish_date
+        FROM products
+        WHERE {where_sql}
+        LIMIT ? OFFSET ?
+    """
+    result = run_query(query, tuple(params), fetch=True)
+    return [
+        {
+            "seller_email": row[0],
+            "id": row[1],
+            "name": row[2],
+            "features": row[3],
+            "free_shipping": bool(row[4]),
+            "description": row[5],
+            "category": row[6],
+            "regular_price": row[7],
+            "discount_price": row[8],
+            "image_url": row[9],
+            "product_link": row[10],
+            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S")
+        }
+        for row in result
+    ]
+
+
+def get_user_favorites(user_email, offset=0, limit=PRODUCTS_PER_PAGE, filters: dict = None):
     """
     Retrieve all products liked by a specific user.
     Returns a list of product dicts.
     """
-    query = """
+    filters = filters or {}
+    where_clauses = ["f.user_email = ?"]
+    params = [user_email]
+    
+    if filters.get("free_shipping"):
+        where_clauses.append("p.free_shipping = 1")
+        
+    if search_query := filters.get("search_query"):
+        where_clauses.append("p.name LIKE ?")
+        params.append(f"%{search_query}%")
+        
+    where_sql = " AND ".join(where_clauses)
+    params.extend([limit, offset])
+    
+    query = f"""
         SELECT p.seller_email, p.id, p.name, p.features, p.free_shipping, 
                p.description, p.category, p.regular_price, p.discount_price, 
                p.image_url, p.link, p.publish_date
         FROM products p
         JOIN favorites f ON p.id = f.product_id
-        WHERE f.user_email = ?
+        WHERE {where_sql}
         LIMIT ? OFFSET ?
     """
-    result = run_query(query, (user_email, limit, offset), fetch=True)
+    
+    result = run_query(query, tuple(params), fetch=True)
     return [
         {
             "seller_email": row[0],
@@ -178,7 +250,7 @@ def get_user_favorites(user_email, offset=0, limit=PRODUCTS_PER_PAGE):
             "discount_price": row[8],
             "image_url": row[9],
             "product_link": row[10],
-            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S.%f")
+            "publish_date": datetime.strptime(row[11], "%Y-%m-%d %H:%M:%S")
         }
         for row in result
     ]
@@ -248,31 +320,82 @@ def delete_product(product_id):
     run_query(query, (product_id,))
     return True
 
-def count_products():
-    """Return the total number of products in the database."""
-    query = "SELECT COUNT(*) FROM products"
-    return run_query(query, fetch=True)[0][0]
+def count_products(filters: dict = None) -> int:
+    """Return the total number of products in the database, applying optional filters."""
+    filters = filters or {}
+    where_clauses = ["1=1"]
+    params = []
 
-def count_products_by_category(category_name):
+    if filters.get("free_shipping"):
+        where_clauses.append("free_shipping = 1")
+    
+    if search_query := filters.get("search_query"):
+        where_clauses.append("name LIKE ?")
+        params.append(f"%{search_query}%")
+    
+    where_sql = " AND ".join(where_clauses)
+    query = f"SELECT COUNT(*) FROM products WHERE {where_sql}"
+    return run_query(query, params, fetch=True)[0][0]
+
+def count_products_by_category(category_name, filters: dict = None) -> int:
     """
     Return the total number of products in the database for a specific category.
     """
-    query = "SELECT COUNT(*) FROM products WHERE LOWER(category) = LOWER(?)"
-    result = run_query(query, (category_name,), fetch=True)
-    return result[0][0] if result else 0
+    filters = filters or {}
+    where_clauses = ["LOWER(category) = LOWER(?)"]
+    params = [category_name]
+    
+    if filters.get("free_shipping"):
+        where_clauses.append("free_shipping = 1")
+        
+    if search_query := filters.get("search_query"):
+        where_clauses.append("name LIKE ?")
+        params.append(f"%{search_query}%")
+        
+    where_sql = " AND ".join(where_clauses)
+    query = f"SELECT COUNT(*) FROM products WHERE {where_sql}"
+    return run_query(query, tuple(params), fetch=True)[0][0]
 
-def count_user_products(seller_email):
+def count_user_products(seller_email, filters: dict = None) -> int:
     """Return the total number of products for a specific user."""
-    query = "SELECT COUNT(*) FROM products WHERE seller_email = ?"
-    return run_query(query, (seller_email,), fetch=True)[0][0]
+    filters = filters or {}
+    where_clauses = ["seller_email = ?"]
+    params = [seller_email]
+    
+    if filters.get("free_shipping"):
+        where_clauses.append("free_shipping = 1")
+    
+    if search_query := filters.get("search_query"):
+        where_clauses.append("name LIKE ?")
+        params.append(f"%{search_query}%")
+        
+    where_sql = " AND ".join(where_clauses)
+    query = f"SELECT COUNT(*) FROM products WHERE {where_sql}"
+    return run_query(query, tuple(params), fetch=True)[0][0]    
 
-def count_user_favorites(user_email):
+def count_user_favorites(user_email, filters: dict = None) -> int:
     """
     Count the number of products liked by a specific user.
     """
-    query = "SELECT COUNT(*) FROM favorites WHERE user_email = ?"
-    result = run_query(query, (user_email,), fetch=True)
-    return result[0][0] if result else 0
+    filters = filters or {}
+    where_clauses = ["f.user_email = ?"]
+    params = [user_email]
+    if filters.get("free_shipping"):
+        where_clauses.append("p.free_shipping = 1")
+    
+    if search_query := filters.get("search_query"):
+        where_clauses.append("p.name LIKE ?")
+        params.append(f"%{search_query}%")
+    
+    where_sql = " AND ".join(where_clauses)
+    query = f"""
+        SELECT COUNT(*)
+        FROM products p
+        JOIN favorites f ON p.id = f.product_id
+        WHERE {where_sql}
+    """
+    return run_query(query, tuple(params), fetch=True)[0][0]
+    
 
 def rate_product(user_email, product_id, rating):
     """

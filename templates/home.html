@@ -1,6 +1,19 @@
 {% extends "base_page.html" %}
 {% block title %}DealsShare - Home{% endblock %}
+
+{% block Admin %}
+{% if user["role"] == 'admin' %}
+<a href="{{ url_for('admin') }}" class="admin-float-btn">
+    ⚙️ Admin
+</a>
+{% endif %}
+{% endblock %}
+
 {% block sentence %}Welcome. Find & Share the best deals!{% endblock %}
+
+{% block search_and_filter %}
+{% include "search_&_filter.html" %}
+{% endblock %}
 
 {% block content %}
 {% include "product_cards.html" %}

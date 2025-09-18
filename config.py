@@ -15,3 +15,4 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 # Other settings
 PRODUCTS_PER_PAGE = 16
+USERS_PER_PAGE = 20

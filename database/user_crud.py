@@ -68,8 +68,7 @@ def get_all_users():
         "first_name": row[1],
         "last_name": row[2],
         "gender": row[3],
-        "password": row[4],
-        "role": row[5],
+        "role": row[4],
         }
         for row in result
     ]

@@ -68,22 +68,24 @@ header .logo {
 
 /* bar button */
 .bar-button {
+    height: 40px;
     display: inline-block;
     background-color: var(--main-color);
     border: 1px solid #000;
-    padding: 10px 20px;
+    padding: 10px 10px;
     font-size: 1em;
     font-weight: bold;
     cursor: pointer;
     border-radius: 5px;
     transition: background 0.3s;
+    white-space: nowrap;
 }
 
 .bar-button:hover {
     background-color: var(--hover-button-color);
 }
 
-.profile-menu {
+.profile-menu, .filter-menu {
     position: relative;
 }
 
@@ -97,7 +99,7 @@ header .logo {
 
 .dropdown {
     position: absolute;
-    top: 40px;
+    top: 45px;
     right: 0;
     background-color: #fff;
     border: 1px solid #ddd;
@@ -113,7 +115,7 @@ header .logo {
     z-index: 100;
 }
 
-.profile-menu:hover .dropdown {
+.profile-menu:hover .dropdown, .filter-menu:hover .dropdown {
     opacity: 1;
     visibility: visible;
 }
@@ -126,14 +128,70 @@ header .logo {
     font-weight: 500;
 }
 
-.dropdown a:hover {
+.dropdown label {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+    cursor: pointer;
+}
+
+.dropdown a:hover, .dropdown label:hover {
     background-color: var(--main-color);
     border-radius: 8px;
 }
 
+.search-form {
+    all: unset;
+    display: flex;
+    align-items: center;
+}
+
+.search-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.search-button {
+    all: unset;
+    display: flex;
+    transform: translateX(-120%);
+    border: none;
+    background: #fff;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+}
+
+.search-button svg {
+    width: 16px;
+    height: 16px;
+    color: #000;
+}
+
+.search-button:hover {
+    border-radius: 30%;
+}
 /* ------------------------
    Categories Mega Menu 
 ------------------------- */
+.dropdown-btn {
+    border: none;
+    white-space: nowrap;
+}
 
 .categories-menu .mega-dropdown {
     position: absolute;
@@ -175,7 +233,7 @@ header .logo {
     font-weight: 500;
     text-decoration: none;
     border-radius: 8px;
-    background-color: rgba(0,0,0,0.3);
+    background-color: rgba(0,0,0,0.4);
     background-blend-mode: overlay; 
     background-size: cover;
     background-position: center;
@@ -252,6 +310,29 @@ button:hover, .btn:hover {
     background-color: var(--hover-button-color);
 }
 
+.admin-float-btn {
+    position: fixed;
+    top: 100px;
+    left: 20px;
+    background-color: var(--main-color);
+    border: 2px solid #000;
+    color: #000;
+    font-weight: bold;
+    padding: 10px 18px;
+    border-radius: 30px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+    z-index: 1000;
+}
+
+.admin-float-btn:hover {
+    background-color: var(--hover-button-color);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+
 /* ------------------------
    Custom Popup
 ------------------------- */
@@ -308,15 +389,17 @@ button:hover, .btn:hover {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     margin: 20px;
     transition: transform 0.3s, box-shadow 0.3s;
-    width: 260px;
+    width: 250px;
     height: 440px;
     display: flex;
     flex-direction: column;
 }
 
 .user-card, .dashboard-card {
+    padding: 20px 30px;
     height: 190px !important;
     text-align: center;
+    justify-content: space-between;
 }
 
 .product-card:hover, .user-card:hover, .dashboard-card:hover {
@@ -326,7 +409,7 @@ button:hover, .btn:hover {
 
 .product-card img {
     display: block;
-    width: 100%;
+    width: 260px;
     max-height: 170px;
     object-fit: cover;
     border-bottom: 4px solid var(--main-color);
@@ -701,6 +784,7 @@ footer {
    Layout Helpers
 ------------------------- */
 .container {
+    min-height: 60vh;
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -713,7 +797,8 @@ footer {
     min-width: 400px;
     max-width: 1200px;
     margin: 50px auto;
-    padding: 20px;
+    padding-left: 250px;
+    padding-right: 250px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
@@ -775,8 +860,4 @@ footer {
     border: 1px solid #000;
     border-radius: 50%;
     padding: 5px;
-}
-
-#manage-profile-btns {
-    margin: 0px !important;
 }

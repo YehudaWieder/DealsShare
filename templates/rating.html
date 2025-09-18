@@ -1,0 +1,13 @@
+{% for i in range(5) %}
+    {% if i < stars %}
+        <!-- full star -->
+        <svg class="star full" viewBox="0 0 24 24">
+            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+        </svg>
+    {% else %}
+        <!-- empty star -->
+        <svg class="star empty" viewBox="0 0 24 24">
+            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
+        </svg>
+    {% endif %}
+{% endfor %}

@@ -1,169 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DealsShare - Products</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-</head>
-<body data-message="{{ message }}">
-    <!-- Header / Top Menu -->
-    <header>
-        <a href="{{ url_for('home') }}">
-            <div class="logo">DealsShare</div>
-        </a>
+{% extends "base_page.html" %}
+{% block title %}DealsShare - Products{% endblock %}
 
-        <div class="header-right">
-            <a href="{{ url_for('home') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-house-door bar-icon" viewBox="0 0 16 16">
-                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
-                </svg>
-            </a>
-            
-            <a href="{{ url_for('add_product') }}">
-                <button class="bar-button">Share Product</button>
-            </a>
+{% block Admin %}
+<a href="{{ url_for('admin') }}" class="admin-float-btn">
+    ⚙️ Admin
+</a>
+{% endblock %}
 
-            <a href="{{ url_for('favorites') }}">
-                <!-- heart icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart bar-icon" viewBox="0 0 16 16">
-                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
-                </svg>
-            </a>
+{% block sentence %}Manage all products from here{% endblock %}
 
-            <div class="profile-menu">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
-                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                </svg>
+{% block search_and_filter %}
+{% include "search_&_filter.html" %}
+{% endblock %}
 
-                <div class="dropdown">
-                    <a href="{{ url_for('profile') }}">My Profile</a>
-                    <a href="{{ url_for('logout') }}">Logout</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="message-banner">
-        <h1>Products management</h1>
-        <p>Manage all products from here.</p>
-    </div>
-
-    
-    <!-- Main Content -->
-    <main class="container">
-        {% for product in products %}
-            <div class="product-card">
-                <div class="product-icons">
-                    <!-- Edit product -->
-                    <a href="{{ url_for('edit_product', product_id=product["id"]) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil product-icon" viewBox="0 0 16 16">
-                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
-                        </svg>
-                    </a>
-
-                    <!-- Delete product -->
-                    <form action="{{ url_for('products') }}" method="POST" class="unstyled-form">
-                        <input type="hidden" name="product_id" value="{{ product["id"] }}">
-                        <button type="submit" class="unstyled-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 product-icon" viewBox="0 0 16 16">
-                                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-                            </svg>
-                        </button>
-                    </form>
-                </div>
-                
-                <a href="{{ url_for('single_product', product_id=product['id']) }}">
-
-                    <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
-                        alt="{{ product['name'] }}" class="product-image">
-
-                    <div>
-                        {% set features_list = product["features"].split(",") if product["features"] else [] %}
-                        {% set publish_date = product["publish_date"] | default('1970-01-01') %}
-                        {% set days_since_publish = ( current_time  - publish_date).days %}
-
-                        {% if days_since_publish >= 4 %}
-                            <div class="badge sale-ending">Deal Ending Soon!</div>
-                        {% endif %}
-
-                        <div class="product-info">
-                            <h3 class="product-name">{{ product["name"] }}</h3>
-
-                            {% if features_list %}
-                                <ul class="features-list">
-                                    {% for feat in features_list %}
-                                        <li>{{ feat.strip() }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-
-                            {% if product["free_shipping"] %}
-                                <span class="free-shipping-label">Free Shipping</span>
-                            {% endif %}
-
-                            <div>
-                                <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
-                                <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
-                            </div>
-
-                            <!-- Seller Info -->
-                            <h5 class="seller-name">seller: {{ product["seller_name"] }}</h5>
-                            <div class="">
-                                {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
-                                {% for i in range(5) %}
-                                    {% if i < stars %}
-                                        <!-- full star -->
-                                        <svg class="star full card-star" viewBox="0 0 24 24">
-                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
-                                        </svg>
-                                    {% else %}
-                                        <!-- empty star -->
-                                        <svg class="star empty card-star" viewBox="0 0 24 24">
-                                            <path d="M12 .587l3.668 7.568L24 9.423l-6 5.847L19.336 24 12 19.897 4.664 24 6 15.27 0 9.423l8.332-1.268z"/>
-                                        </svg>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
-        
-    </main>
-
-    <!-- pagination Button -->
-    <div class="pagination">
-        {% if pagination_data["page"] > 1 %}
-            <a href="{{ url_for('home', page=pagination_data["page"]-1) }}">&laquo; Previous</a>
-        {% endif %}
-
-        {% for p in range(1, pagination_data["total_pages"] + 1) %}
-            {% if p == pagination_data["page"] %}
-                <span class="current-page">{{ p }}</span>
-            {% else %}
-                <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if pagination_data["page"] < pagination_data["total_pages"] %}
-            <a href="{{ url_for('home', page=pagination_data["page"]+1) }}">Next &raquo;</a>
-        {% endif %}
-    </div>
-
-    <!-- popup container -->
-    <div id="custom-popup" class="popup hidden">
-        <div class="popup-content">
-            <p id="popup-message"></p>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer>
-        &copy; 2025 DealsShare. All Rights Reserved.
-    </footer>
-</body>
-</html>
+{% block content %}
+{% include "product_cards_for_admin_&_profile.html" %}
+{% endblock %}
