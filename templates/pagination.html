@@ -1,18 +1,18 @@
 <!-- pagination Button -->
 <div class="pagination">
     {% if pagination_data["page"] > 1 %}
-        <a href="{{ url_for('home', page=pagination_data["page"]-1) }}">&laquo; Previous</a>
+        <a href="{{ url_for(request.endpoint, page=pagination_data["page"]-1) }}">&laquo; Previous</a>
     {% endif %}
 
     {% for p in range(1, pagination_data["total_pages"] + 1) %}
         {% if p == pagination_data["page"] %}
             <span class="current-page">{{ p }}</span>
         {% else %}
-            <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
+            <a href="{{ url_for(request.endpoint, page=p) }}">{{ p }}</a>
         {% endif %}
     {% endfor %}
 
     {% if pagination_data["page"] < pagination_data["total_pages"] %}
-        <a href="{{ url_for('home', page=pagination_data["page"]+1) }}">Next &raquo;</a>
+        <a href="{{ url_for(request.endpoint, page=pagination_data["page"]+1) }}">Next &raquo;</a>
     {% endif %}
 </div>

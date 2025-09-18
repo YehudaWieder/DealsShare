@@ -583,6 +583,7 @@ button:hover, .btn:hover {
    product Rating
 ------------------------- */
 .product-rating-section {
+    justify-items: center;
     margin-top: 30px;
     padding: 20px;
 }

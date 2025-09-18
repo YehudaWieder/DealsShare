@@ -14,13 +14,15 @@
 <div class="container">
     <form action="/edit_user" method="POST">
         <!-- Hidden field for user ID -->
-        <input type="hidden" name="user_id" value="{{ edited_user["user_id"] }}">
 
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" value="{{ edited_user["username"] }}" required>
+        <label for="first_name">first name</label>
+        <input type="text" id="first_name" name="first_name" value="{{ edited_user['first_name'] }}" required>
+
+        <label for="last_name">last name</label>
+        <input type="text" id="last_name" name="last_name" value="{{ edited_user['last_name'] }}" required>
 
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="{{ edited_user["email"] }}" readonly required>
+        <input type="email" id="email" name="email" value="{{ edited_user['email'] }}" readonly required>
 
         <label for="role">Role</label>
         <select id="role" name="role" required>
