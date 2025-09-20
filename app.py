@@ -6,12 +6,12 @@ import time
 import webbrowser
 from flask import Flask, render_template, request, redirect, session, url_for
 
-from routes.admin_routes import delete_user_by_id, edit_user_details, is_user_admin
+from routes.admin_routes import calculate_users_pagination_data, delete_user_by_id, edit_user_details, get_all_users_with_stats, is_user_admin
 from routes.auth_routes import insert_new_user, user_login
 from routes.product_routes import calculate_pagination_data_by_category, calculate_pagination_data_by_user, calculate_pagination_data_favorites, delete_product_by_id, calculate_pagination_data, get_all_favorite_products_with_seller_info, get_product_with_seller_info, get_products_by_category_with_seller_info, get_user_products_with_ratings, insert_new_product, update_product_in_db, get_all_products_with_seller_info
-from routes.user_routes import calculate_users_pagination_data, delete_profile, edit_profile_details, get_all_users_with_stats, get_user_with_stats
+from routes.user_routes import delete_profile, edit_profile_details, get_user_with_stats
 from database.user_crud import count_users, get_user
-from database.product_crud import count_products, delete_old_products, get_all_products, get_product, rate_product, toggle_favorite
+from database.product_crud import count_products, delete_old_products, get_product, rate_product, toggle_favorite
 
 from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH
 

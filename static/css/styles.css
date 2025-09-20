@@ -48,7 +48,8 @@ header {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: sticky;
+    position: fixed;
+    width: 100%;
     top: 0;
     z-index: 100;    
 }
@@ -273,12 +274,13 @@ header .logo {
 
 .message-banner-home {
     width: 100%;
-    background-image: url('/static/img/main.jpeg');
-    background-color: rgba(0,0,0,0.4);
+    background-image: url('/static/img/main-gif.gif');
+    background-color: rgba(0,0,0,0.55);
     background-blend-mode: overlay; 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    margin-top: 70px;
     padding: 50px;
     color: white;
     text-align: center;      
@@ -397,7 +399,7 @@ button:hover, .btn:hover {
 
 .user-card, .dashboard-card {
     padding: 20px 30px;
-    height: 190px !important;
+    height: 210px !important;
     text-align: center;
     justify-content: space-between;
 }
@@ -462,6 +464,16 @@ button:hover, .btn:hover {
     flex-direction: column;
     justify-content: space-between;
     flex: 1;
+}
+
+.user-card-info h3,
+.user-card-info p {
+    line-height: 1.5;
+}
+
+.user-card-info h3 {
+    width: 100%;
+    border-bottom: var(--main-color) solid 2px;
 }
 
 .features-list {

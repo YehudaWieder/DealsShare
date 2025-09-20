@@ -1,7 +1,21 @@
 
 
-from database.user_crud import delete_user, get_user, update_user
+from math import ceil
+from config import USERS_PER_PAGE
+from database.product_crud import count_user_products
+from database.user_crud import count_users, delete_user, get_all_users, get_seller_avg_rating, get_user, update_user
 
+def get_all_users_with_stats():
+    """
+    Retrieve all users along with their product statistics.
+    """
+    users = get_all_users()
+
+    for user in users:
+        user["product_count"] = count_user_products(user["email"])
+        user["avg_rating"] = get_seller_avg_rating(user["email"])
+        
+    return users
 
 def edit_user_details(form_data) -> dict:
     """
@@ -9,7 +23,8 @@ def edit_user_details(form_data) -> dict:
     Returns a dictionary with success status and message.
     """
     user_email = form_data.get("email")
-    username = form_data.get("username")
+    first_name = form_data.get("first_name")
+    last_name = form_data.get("last_name")
     role = form_data.get("role")
     
     # Check if the user exists in DB
@@ -19,9 +34,10 @@ def edit_user_details(form_data) -> dict:
 
     # Update user in DB
     try:
-        update_user(int(user_email), username=username, email=existing_user["email"], password=existing_user["password"], role=role)
+        update_user(user_email, first_name=first_name, last_name=last_name, password=existing_user["password"], role=role)
         return {"success": True, "message": "User updated successfully."}
     except Exception as e:
+        print(e)
         return {"success": False, "message": f"Error while updating user: {str(e)}"}
     
 
@@ -65,3 +81,17 @@ def is_user_admin(user_id: int) -> dict:
 
     except Exception as e:
         return {"success": False, "message": f"Error while checking admin status: {str(e)}"}
+
+def calculate_users_pagination_data(page: int) -> dict:
+    """
+    Calculate pagination data for users.
+    """
+    offset = (page - 1) * USERS_PER_PAGE
+    total_count = count_users()
+    total_pages = ceil(total_count / USERS_PER_PAGE)
+
+    return {
+        "page": page,
+        "offset": offset,
+        "total_pages": total_pages
+    }
