@@ -386,27 +386,35 @@ button:hover, .btn:hover {
 
 .new-products-slider-wrapper {
     overflow: hidden;
-    width: 100%;
+    width: 95%;
+    margin: 15px auto;
 }
 
 .new-products-slider {
     display: flex;
     gap: 15px;
-    animation: scrollSlider 10s linear infinite;
 }
 
-@keyframes scrollSlider {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+.arrow {
+    width: 45px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-200%);
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 18px;
 }
 
-.new-products-slider::-webkit-scrollbar {
-    height: 8px;
+.arrow.left {
+  left: 0px;
 }
 
-.new-products-slider::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 4px;
+.arrow.right {
+  right: 90%;
 }
 
 .slider-card {
@@ -466,6 +474,7 @@ button:hover, .btn:hover {
     color: #888;
     font-size: 0.8em;
 }
+
 
 /* ------------------------
    Product users & dashboard card
