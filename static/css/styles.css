@@ -24,6 +24,7 @@ a {
 html, body {
     height: 100%;
     margin: 0;
+    overflow-x: hidden;
 }
 
 body {
@@ -317,11 +318,11 @@ button:hover, .btn:hover {
     top: 100px;
     left: 20px;
     background-color: var(--main-color);
-    border: 2px solid #000;
+    border: 1px solid #000;
     color: #000;
     font-weight: bold;
     padding: 10px 18px;
-    border-radius: 30px;
+    border-radius: 5px;
     text-decoration: none;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
@@ -379,6 +380,92 @@ button:hover, .btn:hover {
     font-weight: 500;
 }
 
+/* ------------------------
+   New Products Slider
+------------------------- */
+
+.new-products-slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+}
+
+.new-products-slider {
+    display: flex;
+    gap: 15px;
+    animation: scrollSlider 10s linear infinite;
+}
+
+@keyframes scrollSlider {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+.new-products-slider::-webkit-scrollbar {
+    height: 8px;
+}
+
+.new-products-slider::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+.slider-card {
+    flex: 0 0 300px;
+    min-width: 300px;
+    height: 130px;
+    display: flex;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.slider-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.slider-image {
+    width: 130px;
+    height: 100%;
+    object-fit: cover;
+    border-right: 2px solid var(--main-color);
+}
+
+.slider-info {
+    flex: 1 1 auto; 
+    padding: 10px 0;
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: auto;
+}
+
+.slider-info h3 {
+    font-size: 1em;
+    margin: 0 0 5px 0;
+}
+
+.features-list {
+    list-style: disc inside;
+    margin: 0 0 5px 0;
+    padding: 0;
+    font-size: 0.8em;
+    color: #555;
+}
+
+.sale-price {
+    color: #000;
+    font-weight: bold;
+}
+
+.regular-price {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 0.8em;
+}
 
 /* ------------------------
    Product users & dashboard card
@@ -540,7 +627,7 @@ button:hover, .btn:hover {
 
 @keyframes flash {
     from { opacity: 1; }
-    to { opacity: 0.2; }
+    to { opacity: 0.6; }
 }
 
 /* ------------------------
@@ -810,8 +897,8 @@ footer {
     min-width: 400px;
     max-width: 1200px;
     margin: 50px auto;
-    padding-left: 250px;
-    padding-right: 250px;
+    padding-left: 280px;
+    padding-right: 280px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;

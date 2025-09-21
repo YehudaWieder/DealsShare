@@ -139,6 +139,7 @@ def update_product_in_db(form_data, file) -> dict:
         img = Image.open(file)
         img.verify()
         image_url = save_and_resize_image(file, product_id=product_id)
+        os.remove(os.path.join(UPLOAD_FOLDER, os.path.basename(existing_product['image_url'])))
     except:
         image_url = existing_product['image_url']
     if not image_url:

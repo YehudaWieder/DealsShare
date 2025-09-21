@@ -1,6 +1,6 @@
 import sqlite3
 
-from config import DB_PATH
+from config import DB_PATH, USERS_PER_PAGE
 
 # --- Utility ---
 def run_query(query, params=(), fetch=False):
@@ -53,15 +53,30 @@ def get_user(email):
     return None
 
 
-def get_all_users():
+def get_all_users(offset=0, limit=USERS_PER_PAGE, filters: dict = None):
     """
     Retrieve all users (without password).
     """
-    query = """
+    filters = filters or {}
+    where_clauses = ["1=1"]
+    params = []
+
+    # Filter: search query
+    if search_query := filters.get("search_query"):
+        where_clauses.append("(first_name LIKE ? OR last_name LIKE ?)")
+        params.extend([f"%{search_query}%", f"%{search_query}%"])
+  
+    where_sql = " AND ".join(where_clauses)
+    
+    query = f"""
         SELECT email, first_name, last_name, gender, role
         FROM users
+        WHERE {where_sql}
+        LIMIT ? OFFSET ?
     """
-    result = run_query(query, fetch=True)
+    params.extend([limit, offset])
+    
+    result = run_query(query, params, fetch=True)
     return [
         {
         "email": row[0],
@@ -120,12 +135,24 @@ def delete_user(email):
     return True
 
 
-def count_users():
+def count_users(filters: dict = None):
     """
     Count the number of users in the database.
     """
-    query = "SELECT COUNT(*) FROM users"
-    return run_query(query, fetch=True)[0][0]
+    filters = filters or {}
+    where_clauses = ["1=1"]
+    params = []
+
+    # Filter: search query
+    if search_query := filters.get("search_query"):
+        where_clauses.append("(first_name LIKE ? OR last_name LIKE ?)")
+        params.extend([f"%{search_query}%", f"%{search_query}%"])
+
+    
+    where_sql = " AND ".join(where_clauses)
+    
+    query = f"SELECT COUNT(*) FROM users WHERE {where_sql}"
+    return run_query(query, params, fetch=True)[0][0]
 
 
 def get_seller_avg_rating(seller_email):

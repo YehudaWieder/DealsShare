@@ -5,11 +5,11 @@ from config import USERS_PER_PAGE
 from database.product_crud import count_user_products
 from database.user_crud import count_users, delete_user, get_all_users, get_seller_avg_rating, get_user, update_user
 
-def get_all_users_with_stats():
+def get_all_users_with_stats(offset: int, limit: int, filters: dict = None) -> list:
     """
     Retrieve all users along with their product statistics.
     """
-    users = get_all_users()
+    users = get_all_users(offset=offset, limit=limit, filters=filters)
 
     for user in users:
         user["product_count"] = count_user_products(user["email"])
@@ -82,12 +82,12 @@ def is_user_admin(user_id: int) -> dict:
     except Exception as e:
         return {"success": False, "message": f"Error while checking admin status: {str(e)}"}
 
-def calculate_users_pagination_data(page: int) -> dict:
+def calculate_users_pagination_data(page: int, filters: dict = None) -> list:
     """
     Calculate pagination data for users.
     """
     offset = (page - 1) * USERS_PER_PAGE
-    total_count = count_users()
+    total_count = count_users(filters=filters)
     total_pages = ceil(total_count / USERS_PER_PAGE)
 
     return {

@@ -13,15 +13,16 @@ from routes.user_routes import delete_profile, edit_profile_details, get_user_wi
 from database.user_crud import count_users, get_user
 from database.product_crud import count_products, delete_old_products, get_product, rate_product, toggle_favorite
 
-from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH
+from config import PRODUCTS_PER_PAGE, SECRET_KEY, DB_PATH, USERS_PER_PAGE
 
 if not os.path.exists(DB_PATH):
     import database.db_setup
     database.db_setup.create_tables()
+    time.sleep(2)
     
-    # import database.seed_data
-    # Timer(0.2, database.seed_data.seed_data).start()
-    # time.sleep(3)
+    import database.seed_data
+    Timer(0.2, database.seed_data.seed_data).start()
+    time.sleep(20)
     
 
 app = Flask(__name__)
@@ -437,21 +438,30 @@ def users():
     
     user_email = session.get("user_email")
     
+    search_query = request.args.get('search_query', '').strip()
+
+    filters = {}
+    if search_query:
+        filters['search_query'] = search_query
+    
     result = is_user_admin(user_email)
     if not result["success"]:
             return redirect(url_for('login', message=result["message"]))
 
     msg = request.args.get("message")
 
-    pagination_data = calculate_users_pagination_data(int(request.args.get("page", 1)))
-    users = get_all_users_with_stats()
+    pagination_data = calculate_users_pagination_data(
+        int(request.args.get("page", 1)),
+        filters=filters
+        )
+    
+    users = get_all_users_with_stats(offset=pagination_data["offset"], limit=USERS_PER_PAGE, filters=filters)
 
     if request.method == 'POST':
         result = delete_user_by_id(request.form)
         return redirect(url_for('users', message=result["message"]))
 
     return render_template('users.html', pagination_data=pagination_data, message=msg, users=users)
-
 
 @app.route('/products', methods=['GET', 'POST'])
 def products():
@@ -492,6 +502,18 @@ def products():
 
     if request.method == 'POST':
         result = delete_product_by_id(request.form)
+        
+        pagination_data = calculate_pagination_data(
+            int(request.args.get("page", 1)), 
+            filters=filters
+            )
+        
+        products = get_all_products_with_seller_info(
+            user_email=user_email, 
+            offset=pagination_data["offset"], 
+            limit=PRODUCTS_PER_PAGE, filters=filters
+            )
+        
         return render_template(
             'products.html', 
             message=result["message"], 

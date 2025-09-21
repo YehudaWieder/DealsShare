@@ -1,7 +1,6 @@
 import sys
 import os
 
-from product_crud import get_all_products
 import random
 from werkzeug.datastructures import FileStorage
 

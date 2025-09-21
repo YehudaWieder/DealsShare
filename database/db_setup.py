@@ -44,7 +44,7 @@ def create_tables():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_email TEXT NOT NULL,
                 seller_email TEXT NOT NULL,
-                product_id INTEGER NOT NULL,
+                product_id INTEGER,
                 rating INTEGER CHECK(rating BETWEEN 1 AND 5),
                 FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE SET NULL,
                 FOREIGN KEY (seller_email) REFERENCES users(email) ON DELETE CASCADE,

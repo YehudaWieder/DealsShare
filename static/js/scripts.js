@@ -87,5 +87,3 @@ passwordField.addEventListener("input", () => {
 });
 
 confirmPasswordField.addEventListener("input", checkPasswordsMatch);
-
-
