@@ -312,6 +312,13 @@ header .logo {
         transform: translateX(50%);
         right: 50%;
     }
+
+.admin-float-btn {
+    top: 85px !important;
+    left: 10px !important;
+    padding: 5PX !important;
+    font-size: small;
+}
 }
 
 /* ------------------------
@@ -580,7 +587,7 @@ button:hover, .btn:hover {
 .product-card img {
     display: block;
     width: 260px;
-    max-height: 170px;
+    height: 170px;
     object-fit: cover;
     border-bottom: 4px solid var(--main-color);
 }
@@ -729,8 +736,8 @@ button:hover, .btn:hover {
 }
 
 .single-product-image {
-    width: 500px;
-    height: 500px;
+    max-width: 500px;
+    max-height: 500px;
     border-radius: 16px;
     object-fit: cover;
 }
@@ -759,6 +766,18 @@ button:hover, .btn:hover {
     align-items: center;
 }
 
+@media screen and (max-width: 900px) {
+    .single-product-page {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .single-product-image {
+        width: 100%;
+        height: 100%;
+    }    
+}
 /*------------------------
    product Rating
 ------------------------- */
@@ -978,12 +997,10 @@ footer {
     min-width: 400px;
     max-width: 1200px;
     margin: 50px auto;
-    padding-left: 280px;
-    padding-right: 280px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
 }
 
 .error {

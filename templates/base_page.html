@@ -52,8 +52,6 @@
                 </div>
             </div>
 
-            {% block Admin %}{% endblock %}
-
             <!-- Share Products -->
             <a href="{{ url_for('add_product') }}">
                 <button class="bar-button">Share products</button>
@@ -89,6 +87,8 @@
         <h1> {% block sentence %}{% endblock %}</h1>
         <p></p>
     </div>
+
+    {% block Admin %}{% endblock %}
 
     <!-- Main Content -->
     <div>
