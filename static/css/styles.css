@@ -48,13 +48,16 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-wrap: wrap;
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 100;    
+    z-index: 100;
 }
 
+.mobile-menu{
+    display: none;
+}
 header .logo {
     font-size: 1.8em;
     font-weight: bold;
@@ -187,6 +190,31 @@ header .logo {
 .search-button:hover {
     border-radius: 30%;
 }
+
+/* Hamburger */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 25px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.hamburger div {
+    height: 3px;
+    background-color: #000;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Main Menu */
+.main-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 /* ------------------------
    Categories Mega Menu 
 ------------------------- */
@@ -201,6 +229,8 @@ header .logo {
     left: 50%;
     transform: translateX(-50%);
     width: 70vw;        
+    max-height: 400px;
+    overflow-y: auto;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -255,6 +285,33 @@ header .logo {
 
 .mega-dropdown a:hover {
     transform: scale(1.05);
+}
+
+/* ------------------------
+   Responsive header
+------------------------- */
+/* Responsive Media Query */
+@media screen and (max-width: 900px) {
+    .main-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: var(--main-color);
+        position: absolute;
+        top: 65px;
+        left: 0;
+        padding: 10px 0;
+        z-index: 100;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .dropdown {
+        transform: translateX(50%);
+        right: 50%;
+    }
 }
 
 /* ------------------------
@@ -385,36 +442,51 @@ button:hover, .btn:hover {
 ------------------------- */
 
 .new-products-slider-wrapper {
+    position: relative;
+    background-color: rgba(0,0,0,0.02);
+    width: 100%;
     overflow: hidden;
-    width: 95%;
-    margin: 15px auto;
+    margin-top: 20px;
+    padding: 15px;
 }
 
+.new-products-slider-wrapper h4 {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    margin-bottom:10px ;
+}
 .new-products-slider {
+    margin: 0 !important;
     display: flex;
     gap: 15px;
+    justify-content: flex-start;
 }
 
 .arrow {
-    width: 45px;
-    position: relative;
+    width: 35px;
+    height: 40px; 
+    position: absolute;
     top: 50%;
-    transform: translateY(-200%);
+    transform: translateY(-50%);
     background: rgba(0,0,0,0.5);
     color: #fff;
     border: none;
-    padding: 10px;
     cursor: pointer;
     border-radius: 50%;
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
 
 .arrow.left {
-  left: 0px;
+    left: 5px;
 }
 
 .arrow.right {
-  right: 90%;
+    right: 5px;
 }
 
 .slider-card {

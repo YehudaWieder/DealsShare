@@ -1,67 +1,93 @@
-
 <div class="new-products-slider-wrapper">
+    <h4>Catch new deals</h4>
     <button class="arrow left" id="prev">&#10094;</button>
     <div class="new-products-slider" id="slider">
-        {% for product in products %}
+        {% for product in new_products %}
         {% set publish_date = product["publish_date"] | default('1970-01-01') %}
         {% set days_since_publish = ( current_time  - publish_date).days %}
-        {% if days_since_publish <= 2 %}
-            <div class="slider-card">
-            <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
-                alt="{{ product['name'] }}" class="slider-image">
-            <div class="slider-info">
-                <h3>{{ product['name'] }}</h3>
-                {% if product["features"] %}
-                <ul class="features-list">
-                    {% for feat in product["features"].split(",") %}
-                    <li>{{ feat.strip() }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                <p class="regular-price">₪ {{ product["regular_price"] }}</p>
-                <p class="sale-price">₪ {{ product["discount_price"] }}</p>
-            </div>
-            </div>
-        {% endif %}
+            <a href="{{ url_for('single_product', product_id=product['id']) }}">
+              <div class="slider-card">
+                  <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
+                      alt="{{ product['name'] }}" class="slider-image">
+                  <div class="slider-info">
+                      <h3>{{ product['name'] }}</h3>
+                      {% if product["features"] %}
+                          <ul class="features-list">
+                              {% for feat in product["features"].split(",") %}
+                                  <li>{{ feat.strip() }}</li>
+                              {% endfor %}
+                          </ul>
+                      {% endif %}
+                      <p class="regular-price">₪ {{ product["regular_price"] }}</p>
+                      <p class="sale-price">₪ {{ product["discount_price"] }}</p>
+                  </div>
+              </div>
+            </a> 
         {% endfor %}
     </div>
     <button class="arrow right" id="next">&#10095;</button>
 </div>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const slider = document.getElementById("slider");
-  const cards = slider.children;
-  const totalCards = cards.length;
+    const sliderWrapper = document.querySelector(".new-products-slider-wrapper");
+    const slider = document.getElementById("slider");
+    const cards = Array.from(slider.children);
 
-  let currentIndex = 0;
-  const cardWidth = 300;
+    if (!slider || cards.length === 0) {
+        sliderWrapper.style.display = "none";
+        return;
+    }
 
-  function goToSlide(index) {
-    currentIndex = (index + totalCards) % totalCards; 
-    slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-  }
+    const cardWidth = cards[0].offsetWidth;
+    const totalWidth = cardWidth * cards.length;
+    const wrapperWidth = sliderWrapper.offsetWidth;
 
-  let autoSlide = setInterval(() => {
-    goToSlide(currentIndex + 1);
-  }, 3000);
+    let currentIndex = 0;
 
-  document.getElementById("next").addEventListener("click", () => {
-    goToSlide(currentIndex + 1);
-    resetInterval();
-  });
+    if (totalWidth > wrapperWidth) {
+        // Clone cards only if needed for infinite scroll
+        slider.innerHTML += slider.innerHTML;
+        const allCards = slider.children;
 
-  document.getElementById("prev").addEventListener("click", () => {
-    goToSlide(currentIndex - 1);
-    resetInterval();
-  });
+        function goToSlide(index) {
+            slider.style.transition = "transform 0.5s ease";
+            currentIndex = index;
+            slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
 
-  function resetInterval() {
-    clearInterval(autoSlide);
-    autoSlide = setInterval(() => {
-      goToSlide(currentIndex + 1);
-    }, 3000);
-  }
+            if (currentIndex >= cards.length) {
+                setTimeout(() => {
+                    slider.style.transition = "none";
+                    currentIndex = 0;
+                    slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+                }, 500);
+            } else if (currentIndex < 0) {
+                setTimeout(() => {
+                    slider.style.transition = "none";
+                    currentIndex = cards.length - 1;
+                    slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+                }, 500);
+            }
+        }
+
+        let autoSlide = setInterval(() => goToSlide(currentIndex + 1), 3000);
+
+        document.getElementById("next").addEventListener("click", () => {
+            goToSlide(currentIndex + 1);
+            clearInterval(autoSlide);
+            autoSlide = setInterval(() => goToSlide(currentIndex + 1), 3000);
+        });
+
+        document.getElementById("prev").addEventListener("click", () => {
+            goToSlide(currentIndex - 1);
+            clearInterval(autoSlide);
+            autoSlide = setInterval(() => goToSlide(currentIndex + 1), 3000);
+        });
+    } else {
+        // Center slider if no scrolling is needed
+        slider.style.justifyContent = "center";
+        document.getElementById("next").style.display = "none";
+        document.getElementById("prev").style.display = "none";
+    }
 });
 </script>

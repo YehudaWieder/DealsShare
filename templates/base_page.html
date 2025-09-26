@@ -10,16 +10,28 @@
 <body data-message="{{ message }}">
     <!-- Header / Top Menu -->
     <header>
+        <!-- Logo -->
         <a href="{{ url_for('home') }}">
             <div class="logo">DealsShare</div>
         </a>
 
-        <div class="header-right">
-            {% block search_and_filter %}{% endblock %}
+        <!-- Hamburger for mobile -->
+        <div class="hamburger" id="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+
+        <!-- Main Menu (Desktop & Mobile) -->
+        <div class="main-menu">
+            <!-- Search / Filter -->
+            <div class="search-wrapper">
+                {% block search_and_filter %}{% endblock %}
+            </div>
 
             <!-- Categories Mega Dropdown -->
             <div class="categories-menu">
-                <button class="bar-button dropdown-btn">Categories <span class="">▼</span></button>
+                <button class="bar-button dropdown-btn">Categories ▼</button>
                 {% set categories = [
                     {"name": "Home", "image": "home.jpeg"},
                     {"name": "Electronics", "image": "electronics.jpeg"},
@@ -30,11 +42,10 @@
                     {"name": "Jewellery", "image": "jewellery.jpeg"},
                     {"name": "Office", "image": "office.jpeg"}
                 ] %}
-
                 <div class="mega-dropdown">
                     {% for cat in categories %}
                         <a href="{{ url_for('category', category_name=cat['name']) }}"
-                            style="background-image: url('{{ url_for('static', filename='img/' ~ cat['image']) }}');">
+                        style="background-image: url('{{ url_for('static', filename='img/' ~ cat['image']) }}');">
                             <span>{{ cat.name }}</span>
                         </a>
                     {% endfor %}
@@ -42,25 +53,25 @@
             </div>
 
             {% block Admin %}{% endblock %}
-            
+
+            <!-- Share Products -->
             <a href="{{ url_for('add_product') }}">
                 <button class="bar-button">Share products</button>
             </a>
 
+            <!-- Favorites -->
             <a href="{{ url_for('favorites') }}">
-                <!-- heart icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart bar-icon" viewBox="0 0 16 16">
                     <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
                 </svg>
             </a>
 
-            <div class="profile-menu"> 
-                <!--profile icon-->
+            <!-- Profile Menu -->
+            <div class="profile-menu">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-circle bar-icon" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                 </svg>
-
                 <div class="dropdown">
                     <a href="{{ url_for('profile') }}">My Profile</a>
                     {% if session.get('user_email') %}
@@ -95,5 +106,22 @@
     <footer>
         &copy; 2025 DealsShare. All Rights Reserved.
     </footer>
+
+    <script>
+        const hamburger = document.getElementById("hamburger");
+        const mainMenu = document.querySelector(".main-menu");
+
+        hamburger.addEventListener("click", () => {
+            mainMenu.style.display = mainMenu.style.display === "flex" ? "none" : "flex";
+        });
+        leMenu.style.display = mobileMenu.style.display === "flex" ? "none" : "flex";
+
+        document.querySelectorAll(".categories-menu .dropdown-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const parent = this.closest(".categories-menu");
+                parent.classList.toggle("open");
+            });
+        });
+    </script>
 </body>
 </html>

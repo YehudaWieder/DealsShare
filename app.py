@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import ceil
 import os
 from threading import Timer
@@ -69,10 +69,20 @@ def home():
         filters=filters
     )
 
+    two_days_ago = datetime.now() - timedelta(days=2)
+    filters["publish_date_after"] = two_days_ago
+    new_products = get_all_products_with_seller_info(
+        user_email=user_email,
+        offset=0,
+        limit=30,
+        filters=filters
+    )
+
     return render_template(
         'home.html',
         message=msg,
         products=products,
+        new_products=new_products,
         pagination_data=pagination_data,
         user=user,
         current_time=current_time

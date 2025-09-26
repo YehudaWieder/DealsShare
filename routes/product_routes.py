@@ -63,7 +63,7 @@ def save_and_resize_image(file, product_id, max_size=(800, 800)):
         print("Error saving image:", e)
         return None
 
-def insert_new_product(form_data, file, user_email) -> dict:
+def insert_new_product(form_data, file, user_email, publish_date = None ) -> dict:
     """
     Main function to insert a new product from form data and uploaded image.
     Returns a dictionary with success status and message.
@@ -76,7 +76,8 @@ def insert_new_product(form_data, file, user_email) -> dict:
     regular_price = form_data.get("regular_price")
     discount_price = form_data.get("discount_price")
     link = form_data.get("link")
-    publish_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # publish_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    publish_date = publish_date or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Normalize free_shipping
     free_shipping = 1 if free_shipping in ("1", "true", "True", "on") else 0
