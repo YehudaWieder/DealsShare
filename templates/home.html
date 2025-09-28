@@ -1,22 +1,30 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Home{% endblock %}
 
+<!-- Admin Button (Visible only to admin users) -->
 {% block Admin %}
-{% if user["role"] == 'admin' %}
-<a href="{{ url_for('admin') }}" class="admin-float-btn">
-    ⚙️ Admin
-</a>
-{% endif %}
+    {% if user["role"] == 'admin' %}
+        <a href="{{ url_for('admin') }}" class="admin-float-btn">
+            ⚙️ Admin
+        </a>
+    {% endif %}
 {% endblock %}
 
-{% block sentence %}Welcome. Find & Share the best deals!{% endblock %}
+{% block sentence %}
+Welcome. Find & Share the best deals!
+{% endblock %}
 
+<!-- Search and Filter Section -->
 {% block search_and_filter %}
-{% include "search_&_filter.html" %}
+    {% include "search_&_filter.html" %}
 {% endblock %}
 
+<!-- Main Content -->
 {% block content %}
-{% include "slider_cards.html" %}
-{% include "product_cards.html" %}
+    <!-- Slider for featured/new products -->
+    {% include "slider_cards.html" %}
+    
+    <!-- Product Cards -->
+    {% include "product_cards.html" %}
 {% endblock %}
-

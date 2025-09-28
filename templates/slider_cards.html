@@ -3,26 +3,26 @@
     <button class="arrow left" id="prev">&#10094;</button>
     <div class="new-products-slider" id="slider">
         {% for product in new_products %}
-        {% set publish_date = product["publish_date"] | default('1970-01-01') %}
-        {% set days_since_publish = ( current_time  - publish_date).days %}
+            {% set publish_date = product["publish_date"] | default('1970-01-01') %}
+            {% set days_since_publish = ( current_time - publish_date ).days %}
             <a href="{{ url_for('single_product', product_id=product['id']) }}">
-              <div class="slider-card">
-                  <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
-                      alt="{{ product['name'] }}" class="slider-image">
-                  <div class="slider-info">
-                      <h3>{{ product['name'] }}</h3>
-                      {% if product["features"] %}
-                          <ul class="features-list">
-                              {% for feat in product["features"].split(",") %}
-                                  <li>{{ feat.strip() }}</li>
-                              {% endfor %}
-                          </ul>
-                      {% endif %}
-                      <p class="regular-price">₪ {{ product["regular_price"] }}</p>
-                      <p class="sale-price">₪ {{ product["discount_price"] }}</p>
-                  </div>
-              </div>
-            </a> 
+                <div class="slider-card">
+                    <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
+                         alt="{{ product['name'] }}" class="slider-image">
+                    <div class="slider-info">
+                        <h3>{{ product['name'] }}</h3>
+                        {% if product["features"] %}
+                            <ul class="features-list">
+                                {% for feat in product["features"].split(",") %}
+                                    <li>{{ feat.strip() }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <p class="regular-price">₪ {{ product["regular_price"] }}</p>
+                        <p class="sale-price">₪ {{ product["discount_price"] }}</p>
+                    </div>
+                </div>
+            </a>
         {% endfor %}
     </div>
     <button class="arrow right" id="next">&#10095;</button>
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentIndex = 0;
 
     if (totalWidth > wrapperWidth) {
-        // Clone cards only if needed for infinite scroll
+        // Clone cards for infinite scroll
         slider.innerHTML += slider.innerHTML;
         const allCards = slider.children;
 

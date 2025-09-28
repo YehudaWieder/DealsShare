@@ -1,58 +1,68 @@
 <!-- Main Content -->
 <div class="container">
+
     {% for product in products %}
-            <div class="product-card">
-                
-                {% include "product_icons.html" %}
+        <div class="product-card">
 
-                <a href="{{ url_for('single_product', product_id=product['id']) }}">
+            <!-- Product Action Icons -->
+            {% include "product_icons.html" %}
 
-                    <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
-                        alt="{{ product['name'] }}" class="product-image">
+            <!-- Product Link -->
+            <a href="{{ url_for('single_product', product_id=product['id']) }}">
 
-                    <div class="">
-                        {% set features_list = product["features"].split(",") if product["features"] else [] %}
-                        {% set publish_date = product["publish_date"] | default('1970-01-01') %}
-                        {% set days_since_publish = ( current_time  - publish_date).days %}
+                <!-- Product Image -->
+                <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}"
+                     alt="{{ product['name'] }}" class="product-image">
 
-                        {% if days_since_publish >= 4 %}
-                            <div class="badge sale-ending">Deal Ending Soon!</div>
+                <div class="">
+                    {% set features_list = product["features"].split(",") if product["features"] else [] %}
+                    {% set publish_date = product["publish_date"] | default('1970-01-01') %}
+                    {% set days_since_publish = (current_time - publish_date).days %}
+
+                    <!-- Deal Ending Badge -->
+                    {% if days_since_publish >= 4 %}
+                        <div class="badge sale-ending">Deal Ending Soon!</div>
+                    {% endif %}
+
+                    <!-- Product Info -->
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product["name"] }}</h3>
+
+                        {% if features_list %}
+                            <ul class="features-list">
+                                {% for feat in features_list %}
+                                    <li>{{ feat.strip() }}</li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
-                        
-                        <div class="product-info">
-                            <h3 class="product-name">{{ product["name"] }}</h3>
 
-                            {% if features_list %}
-                                <ul class="features-list">
-                                    {% for feat in features_list %}
-                                        <li>{{ feat.strip() }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                        {% if product["free_shipping"] %}
+                            <span class="free-shipping-label">Free Shipping</span>
+                        {% endif %}
 
-                            {% if product["free_shipping"] %}
-                                <span class="free-shipping-label">Free Shipping</span>
-                            {% endif %}
-
-                            <div>
-                                <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
-                                <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
-                            </div>
-
-                            <!-- Seller Info -->
-                            <div class="">
-                                <h5 class="seller-name"> seller: {{ product["seller_name"] }} </h5>
-                                {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
-                                {% include "rating.html" %}
-                                <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
-                                    <button class="btn">Buy Now</button>
-                                </a>
-                            </div>
+                        <div>
+                            <p class="regular-price"><strong>Regular Price:</strong> ₪ {{ product["regular_price"] }}</p>
+                            <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
                         </div>
+
+                        <!-- Seller Info -->
+                        <div class="">
+                            <h5 class="seller-name">Seller: {{ product["seller_name"] }}</h5>
+                            {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
+                            {% include "rating.html" %}
+                            <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
+                                <button class="btn">Buy Now</button>
+                            </a>
+                        </div>
+
                     </div>
-                </a>
-            </div>
+                </div>
+
+            </a>
+        </div>
     {% endfor %}
+
 </div>
 
+<!-- Pagination -->
 {% include "pagination.html" %}

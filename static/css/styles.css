@@ -1,12 +1,9 @@
-
-
-
 /* ------------------------
    General Reset
 ------------------------- */
 :root {
-  --main-color: #FFEB00;
-  --hover-button-color: #E6D500;
+    --main-color: #FFEB00;
+    --hover-button-color: #E6D500;
 }
 
 * {
@@ -41,7 +38,6 @@ main {
 /* ------------------------
    Header / Top Menu
 ------------------------- */
-/* Header */
 header {
     background-color: var(--main-color);
     padding: 15px 30px;
@@ -55,23 +51,18 @@ header {
     z-index: 100;
 }
 
-.mobile-menu{
-    display: none;
-}
 header .logo {
     font-size: 1.8em;
     font-weight: bold;
     color: #000;
 }
 
-/* Header right */
 .header-right {
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
-/* bar button */
 .bar-button {
     height: 40px;
     display: inline-block;
@@ -111,7 +102,6 @@ header .logo {
     border-radius: 8px;
     min-width: 140px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -120,12 +110,12 @@ header .logo {
     z-index: 100;
 }
 
-.profile-menu:hover .dropdown, .filter-menu:hover .dropdown {
+.profile-menu:hover .dropdown,
+.filter-menu:hover .dropdown {
     opacity: 1;
     visibility: visible;
 }
 
-/* Links inside dropdown */
 .dropdown a {
     padding: 10px 15px;
     text-decoration: none;
@@ -142,11 +132,15 @@ header .logo {
     cursor: pointer;
 }
 
-.dropdown a:hover, .dropdown label:hover {
+.dropdown a:hover,
+.dropdown label:hover {
     background-color: var(--main-color);
     border-radius: 8px;
 }
 
+/* ------------------------
+   Search Form
+------------------------- */
 .search-form {
     all: unset;
     display: flex;
@@ -175,7 +169,6 @@ header .logo {
     background: #fff;
     cursor: pointer;
     padding: 5px;
-    display: flex;
     align-items: center;
     justify-content: center;
     color: #000;
@@ -191,7 +184,9 @@ header .logo {
     border-radius: 30%;
 }
 
-/* Hamburger */
+/* ------------------------
+   Hamburger
+------------------------- */
 .hamburger {
     display: none;
     flex-direction: column;
@@ -208,7 +203,9 @@ header .logo {
     transition: all 0.3s ease;
 }
 
-/* Main Menu */
+/* ------------------------
+   Main Menu
+------------------------- */
 .main-menu {
     display: flex;
     align-items: center;
@@ -216,7 +213,7 @@ header .logo {
 }
 
 /* ------------------------
-   Categories Mega Menu 
+   Categories Mega Menu
 ------------------------- */
 .dropdown-btn {
     border: none;
@@ -228,7 +225,7 @@ header .logo {
     top: 65px;
     left: 50%;
     transform: translateX(-50%);
-    width: 70vw;        
+    width: 70vw;
     max-height: 400px;
     overflow-y: auto;
     background-color: #fff;
@@ -236,18 +233,15 @@ header .logo {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     padding: 20px;
-    
     display: flex;
     flex-wrap: wrap;
     gap: 20px 10px;
-    
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
     z-index: 100;
     justify-content: center;
 }
-
 
 .categories-menu:hover .mega-dropdown {
     opacity: 1;
@@ -256,7 +250,9 @@ header .logo {
 
 .mega-dropdown a {
     position: relative;
-    display: block;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
     width: 150px;
     height: 120px;
     margin: 5px;
@@ -266,13 +262,9 @@ header .logo {
     text-decoration: none;
     border-radius: 8px;
     background-color: rgba(0,0,0,0.4);
-    background-blend-mode: overlay; 
+    background-blend-mode: overlay;
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
     overflow: hidden;
     transition: transform 0.3s;
 }
@@ -290,7 +282,6 @@ header .logo {
 /* ------------------------
    Responsive header
 ------------------------- */
-/* Responsive Media Query */
 @media screen and (max-width: 900px) {
     .main-menu {
         display: none;
@@ -313,24 +304,24 @@ header .logo {
         right: 50%;
     }
 
-.admin-float-btn {
-    top: 85px !important;
-    left: 10px !important;
-    padding: 5PX !important;
-    font-size: small;
-}
+    .admin-float-btn {
+        top: 85px !important;
+        left: 10px !important;
+        padding: 5PX !important;
+        font-size: small;
+    }
 }
 
 /* ------------------------
-   message banner
+   Message Banner
 ------------------------- */
 .message-banner {
-  color: #222;
-  margin: 30px auto;
-  text-align: center;
-  font-weight: 500;
-  min-width: 500px;
-  max-width: 900px;
+    color: #222;
+    margin: 30px auto;
+    text-align: center;
+    font-weight: 500;
+    min-width: 500px;
+    max-width: 900px;
 }
 
 .message-banner h1, h2, h3 {
@@ -341,14 +332,14 @@ header .logo {
     width: 100%;
     background-image: url('/static/img/main-gif.gif');
     background-color: rgba(0,0,0,0.55);
-    background-blend-mode: overlay; 
+    background-blend-mode: overlay;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     margin-top: 70px;
     padding: 50px;
     color: white;
-    text-align: center;      
+    text-align: center;
 }
 
 /* ------------------------
@@ -399,7 +390,6 @@ button:hover, .btn:hover {
     box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
-
 /* ------------------------
    Custom Popup
 ------------------------- */
@@ -435,7 +425,10 @@ button:hover, .btn:hover {
     transform: translateY(-20px);
     transition: transform 0.6s ease;
 }
-.popup.show .popup-content { transform: translateY(0); }
+
+.popup.show .popup-content {
+    transform: translateY(0);
+}
 
 .popup-content p {
     margin: 15px 0;
@@ -447,7 +440,6 @@ button:hover, .btn:hover {
 /* ------------------------
    New Products Slider
 ------------------------- */
-
 .new-products-slider-wrapper {
     position: relative;
     background-color: rgba(0,0,0,0.02);
@@ -461,8 +453,9 @@ button:hover, .btn:hover {
     position: relative;
     width: 100%;
     text-align: center;
-    margin-bottom:10px ;
+    margin-bottom: 10px;
 }
+
 .new-products-slider {
     margin: 0 !important;
     display: flex;
@@ -554,9 +547,8 @@ button:hover, .btn:hover {
     font-size: 0.8em;
 }
 
-
 /* ------------------------
-   Product users & dashboard card
+   Product / User / Dashboard Cards
 ------------------------- */
 .product-card, .user-card, .dashboard-card {
     position: relative;
@@ -651,13 +643,6 @@ button:hover, .btn:hover {
     border-bottom: var(--main-color) solid 2px;
 }
 
-.features-list {
-    list-style: disc inside;
-    margin: 5px 0;
-    padding-left: 0;
-    color: #555;
-}
-
 .free-shipping-label {
     display: inline-block;
     width: auto;
@@ -670,7 +655,7 @@ button:hover, .btn:hover {
     margin-bottom: 5px;
 }
 
-.product-info h3, .user-info h3, .dashboard-info h3{
+.product-info h3, .user-info h3, .dashboard-info h3 {
     font-size: 1.2em;
     margin-bottom: 5px;
 }
@@ -679,12 +664,6 @@ button:hover, .btn:hover {
     font-size: 0.95em;
     color: #555;
     margin-bottom: 2px;
-}
-
-.regular-price {
-    text-decoration: line-through;
-    color: #888;
-    font-size: 0.9em;
 }
 
 .sale-price {
@@ -709,7 +688,6 @@ button:hover, .btn:hover {
     font-weight: bold;
     border-radius: 5px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-
     animation: flash 1s infinite alternate;
 }
 
@@ -719,9 +697,8 @@ button:hover, .btn:hover {
 }
 
 /* ------------------------
-   single product page
+   Single Product Page
 ------------------------- */
-
 .single-product-page {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -766,6 +743,7 @@ button:hover, .btn:hover {
     align-items: center;
 }
 
+/* Responsive single product */
 @media screen and (max-width: 900px) {
     .single-product-page {
         display: flex;
@@ -778,8 +756,9 @@ button:hover, .btn:hover {
         height: 100%;
     }    
 }
-/*------------------------
-   product Rating
+
+/* ------------------------
+   Product Rating
 ------------------------- */
 .product-rating-section {
     justify-items: center;
@@ -911,7 +890,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .input-wrapper .price-input {
     width: 100%;
-    padding: 12px 35px 12px 15px; /* padding-right למיקום ה-$ */
+    padding: 12px 35px 12px 15px;
     border: 1px solid var(--input-border);
     border-radius: 8px;
     font-size: 1em;
@@ -1038,11 +1017,11 @@ footer {
 .star {
     width: 24px;
     height: 24px;
-    fill: #ccc; /* default empty color */
+    fill: #ccc;
 }
 
 .star.full {
-    fill: #FFD700; /* gold color for full stars */
+    fill: #FFD700;
 }
 
 .rating-number {

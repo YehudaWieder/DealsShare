@@ -1,36 +1,45 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Edit user{% endblock %}
 
+<!-- Admin Button -->
 {% block Admin %}
-<a href="{{ url_for('admin') }}" class="admin-float-btn">
-    ⚙️ Admin
-</a>
+    <a href="{{ url_for('admin') }}" class="admin-float-btn">
+        ⚙️ Admin
+    </a>
 {% endblock %}
 
 {% block sentence %}Edit user{% endblock %}
 
 {% block content %}
-<!-- form container -->
+
+<!-- Form Container -->
 <div class="container">
     <form action="/edit_user" method="POST">
-        <!-- Hidden field for user ID -->
 
-        <label for="first_name">first name</label>
+        <!-- First Name -->
+        <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" value="{{ edited_user['first_name'] }}" required>
 
-        <label for="last_name">last name</label>
+        <!-- Last Name -->
+        <label for="last_name">Last Name</label>
         <input type="text" id="last_name" name="last_name" value="{{ edited_user['last_name'] }}" required>
 
+        <!-- Email (readonly) -->
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="{{ edited_user['email'] }}" readonly required>
 
+        <!-- Role Selection -->
         <label for="role">Role</label>
         <select id="role" name="role" required>
             <option value="user" {% if edited_user["role"] == 'user' %}selected{% endif %}>User</option>
             <option value="admin" {% if edited_user["role"] == 'admin' %}selected{% endif %}>Admin</option>
         </select>
 
+        <!-- Submit Button -->
         <button type="submit" class="btn">Save Changes</button>
+
     </form>
 </div>
+
 {% endblock %}

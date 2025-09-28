@@ -1,13 +1,17 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Home{% endblock %}
 
-{% block sentence %}Buy your favorites products{% endblock %}
+{% block sentence %}
+Buy your favorite products
+{% endblock %}
 
+<!-- Search and Filter Section -->
 {% block search_and_filter %}
-{% include "search_&_filter.html" %}
+    {% include "search_&_filter.html" %}
 {% endblock %}
 
+<!-- Main Content: Product Cards -->
 {% block content %}
-{% include "product_cards.html" %}
+    {% include "product_cards.html" %}
 {% endblock %}
-

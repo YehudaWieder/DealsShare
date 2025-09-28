@@ -1,9 +1,12 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Admin dashboard{% endblock %}
 
 {% block sentence %}Admin dashboard{% endblock %}
 
 {% block content %}
+
+<!-- Buttons for managing users/products -->
 <div class="btn-container">
     <a href="{{ url_for('users') }}">
         <button class="btn">Manage users</button>
@@ -13,7 +16,11 @@
         <button class="btn">Manage products</button>
     </a>
 </div>
+
+<!-- Dashboard Cards -->
 <div class="container">
+
+    <!-- Users Card -->
     <div class="dashboard-card">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill dashboard-icon" viewBox="0 0 16 16">
             <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
@@ -24,8 +31,10 @@
         </div>
     </div>
 
+    <!-- Deals Card -->
     <div class="dashboard-card">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bag-fill dashboard-icon" viewBox="0 0 16 16">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
+             class="bi bi-bag-fill dashboard-icon" viewBox="0 0 16 16">
             <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4z"/>
         </svg>
         <div class="dashboard-info">
@@ -34,8 +43,10 @@
         </div>
     </div>
 
+    <!-- Deal Clicks Card -->
     <div class="dashboard-card">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg dashboard-icon" viewBox="0 0 16 16">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
+             class="bi bi-link-45deg dashboard-icon" viewBox="0 0 16 16">
             <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>
             <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/>
         </svg>
@@ -44,5 +55,7 @@
             <p>Deal clicks</p>
         </div>
     </div>
+
 </div>
+
 {% endblock %}

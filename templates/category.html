@@ -1,11 +1,17 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - category{% endblock %}
-{% block sentence %}Find the best deals in {{ category_name }} category!{% endblock %}
 
+{% block sentence %}
+Find the best deals in {{ category_name }} category!
+{% endblock %}
+
+<!-- Search and Filter Section -->
 {% block search_and_filter %}
-{% include "search_&_filter.html" %}
-{% endblock %}
-{% block content %}
-{% include "product_cards.html" %}
+    {% include "search_&_filter.html" %}
 {% endblock %}
 
+<!-- Main Content: Product Cards -->
+{% block content %}
+    {% include "product_cards.html" %}
+{% endblock %}

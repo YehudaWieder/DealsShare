@@ -1,19 +1,29 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Login{% endblock %}
 
-{% block sentence %}Login your account{% endblock %}
+{% block sentence %}
+Login to your account
+{% endblock %}
 
 {% block content %}
-<!-- form container -->
+
+<!-- Form Container -->
 <div class="container">
     <form action="/login" method="POST" class="auth-form">
-        <label for="username">Email</label>
+
+        <!-- Email Input -->
+        <label for="email">Email</label>
         <input type="email" id="email" name="email" required>
 
+        <!-- Password Input -->
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required autocomplete="new-password">
 
+        <!-- Submit Button -->
         <button type="submit" class="btn">Login</button>
+
     </form>
 </div>
+
 {% endblock %}

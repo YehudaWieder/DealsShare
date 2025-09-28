@@ -1,32 +1,43 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Edit Profile{% endblock %}
 
 {% block sentence %}Edit your profile{% endblock %}
 
 {% block content %}
-<!-- form container -->
+
+<!-- Form Container -->
 <div class="container">
     <form action="/edit_profile" method="POST" id="passwordForm" class="auth-form">
-        <input type="hidden" name="user_id" value={{ user["email"] }}>
 
+        <input type="hidden" name="user_id" value="{{ user['email'] }}">
+
+        <!-- First Name -->
         <label for="first_name">First Name</label>
-        <input type="text" id="first_name" name="first_name" value={{ user["first_name"] }} required>
+        <input type="text" id="first_name" name="first_name" value="{{ user['first_name'] }}" required>
 
+        <!-- Last Name -->
         <label for="last_name">Last Name</label>
-        <input type="text" id="last_name" name="last_name" value={{ user["last_name"] }} required>
+        <input type="text" id="last_name" name="last_name" value="{{ user['last_name'] }}" required>
 
+        <!-- Email (readonly) -->
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" value={{ user["email"] }} readonly required>
+        <input type="email" id="email" name="email" value="{{ user['email'] }}" readonly required>
 
+        <!-- Current Password -->
         <label for="current_password">Current Password</label>
         <input type="password" id="current_password" name="current_password" required placeholder="Enter your current password">
         <div id="passwordError" class="error"></div>
 
+        <!-- New Password -->
         <label for="new_password">New Password</label>
-        <input type="password" id="new_password" name="new_password" minlangth="6" placeholder="Enter a new password if you want to change it">
+        <input type="password" id="new_password" name="new_password" minlength="6" placeholder="Enter a new password if you want to change it">
         <div id="confirmPasswordError" class="error"></div>
 
+        <!-- Submit Button -->
         <button type="submit" class="btn">Save Profile</button>
+
     </form>
 </div>
+
 {% endblock %}

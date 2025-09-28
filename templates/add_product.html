@@ -1,21 +1,30 @@
 {% extends "base_page.html" %}
+
 {% block title %}DealsShare - Share product{% endblock %}
 
 {% block sentence %}Add a new product{% endblock %}
 
 {% block content %}
-<!-- form container -->
+
+<!-- Form Container -->
 <div class="container">
+
     <form action="/add_product" method="POST" enctype="multipart/form-data" class="product-form">
+
+        <!-- Product Name -->
         <label for="name">Product Name</label>
         <input type="text" id="name" name="name" required>
 
+        <!-- Key Features -->
         <label for="features">Key Features (1-3, comma-separated)</label>
-        <input type="text" id="features" name="features" placeholder="e.g. Waterproof, Modern design" maxlength="40" required>
+        <input type="text" id="features" name="features" 
+               placeholder="e.g. Waterproof, Modern design" maxlength="40" required>
 
+        <!-- Detailed Description -->
         <label for="description">Detailed Description</label>
         <textarea id="description" name="description" rows="4" maxlength="300" required></textarea>
 
+        <!-- Category Selection -->
         <label for="category">Category</label>
         <select id="category" name="category" required>
             <option value="" disabled selected>Select a category</option>
@@ -25,30 +34,38 @@
             {% endfor %}
         </select>
 
+        <!-- Free Shipping Checkbox -->
         <label>
             <input type="checkbox" name="free_shipping" value="1">
             Free Shipping
         </label>
 
+        <!-- Product Image -->
         <label for="image">Product Image</label>
         <input type="file" id="image" name="image" accept="image/*" required>
 
+        <!-- Regular Price -->
         <label for="regular_price">Regular Price</label>
         <div class="input-wrapper">
             <span class="currency">₪</span>
             <input type="number" id="regular_price" name="regular_price" step="0.01" required>
         </div>
 
+        <!-- Sale Price -->
         <label for="discount_price">Sale Price</label>
         <div class="input-wrapper">
             <span class="currency">₪</span>
             <input type="number" id="discount_price" name="discount_price" step="0.01">
         </div>
 
+        <!-- Product Link -->
         <label for="link">Product Link</label>
         <input type="url" id="link" name="link" required>
 
+        <!-- Submit Button -->
         <button type="submit" class="btn">Share Product</button>
+
     </form>
 </div>
+
 {% endblock %}

@@ -7,11 +7,9 @@
 <div class="single-product-page">
     <!-- Product Image -->
     <div class="product-image-wrapper">
-
         {% include "product_icons.html" %}
-
         <img src="{{ url_for('static', filename='uploads/' ~ product['image_url'].split('/')[-1]) }}" 
-            alt="{{ product['name'] }}" class="single-product-image">
+             alt="{{ product['name'] }}" class="single-product-image">
         {% set publish_date = product["publish_date"] | default('1970-01-01') %}
         {% set days_since_publish = ( current_time - publish_date ).days %}   
     </div>
@@ -29,65 +27,57 @@
             <p class="sale-price"><strong>Sale Price:</strong> ₪ {{ product["discount_price"] }}</p>
         </div>
 
-        <div>
-            <div class="product-features">
-                {% set features_list = product["features"].split(",") if product["features"] else [] %}
-                {% if features_list %}
-                    <h3>Key Features:</h3>
-                    <ul class="features-list">
-                        {% for feat in features_list %}
-                            <li>{{ feat.strip() }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+        <div class="product-features">
+            {% set features_list = product["features"].split(",") if product["features"] else [] %}
+            {% if features_list %}
+                <h3>Key Features:</h3>
+                <ul class="features-list">
+                    {% for feat in features_list %}
+                        <li>{{ feat.strip() }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
-                {% if product["free_shipping"] %}
-                    <div class="free-shipping-label">Free Shipping</div>
-                {% endif %}
-            </div>
+            {% if product["free_shipping"] %}
+                <div class="free-shipping-label">Free Shipping</div>
+            {% endif %}
         </div>
-        
+
         <div class="product-description">
             <h3>Description:</h3>
             <p>{{ product["description"] }}</p>
         </div>
 
-        <div>
-            <!-- Seller Info -->
-            <div class="seller-info">
-                <h4>Seller: {{ product["seller_name"] }}</h4>
-                <div class="seller-rating">
-                    {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
-                    {% include "rating.html" %}
-                </div>
-            </div>
-
-            <!-- Buy Now -->
-            <div class="buy-button-wrapper">
-                <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
-                    <button class="btn buy-now">Buy Now</button>
-                </a>
+        <!-- Seller Info -->
+        <div class="seller-info">
+            <h4>Seller: {{ product["seller_name"] }}</h4>
+            <div class="seller-rating">
+                {% set stars = product["seller_rating"]|round(0, 'floor')|int %}
+                {% include "rating.html" %}
             </div>
         </div>
-    </div>
 
+        <!-- Buy Now -->
+        <div class="buy-button-wrapper">
+            <a href="{{ product['product_link'] }}" target="_blank" rel="noopener noreferrer">
+                <button class="btn buy-now">Buy Now</button>
+            </a>
+        </div>
+    </div>
 </div>
 
-{% if product['seller_email'] != session.get('user_email')%}
-    <div class="product-rating-section">
-        <h4>Rate this Product</h4>
-        <br>
-        <form action="{{ url_for('rating', product_id=product['id']) }}" method="POST" class="rating-form">
-            <div class="star-rating">
-                {% for i in range(5, 0, -1) %}
-                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
-                    <label for="star{{ i }}" title="{{ i }} stars">
-                        ★
-                    </label>
-                {% endfor %}
-            </div>
-            <button type="submit" class="btn submit-rating">Submit Rating</button>
-        </form>
-    </div>
+{% if product['seller_email'] != session.get('user_email') %}
+<div class="product-rating-section">
+    <h4>Rate this Product</h4>
+    <form action="{{ url_for('rating', product_id=product['id']) }}" method="POST" class="rating-form">
+        <div class="star-rating">
+            {% for i in range(5, 0, -1) %}
+                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                <label for="star{{ i }}" title="{{ i }} stars">★</label>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn submit-rating">Submit Rating</button>
+    </form>
+</div>
 {% endif %}
 {% endblock %}

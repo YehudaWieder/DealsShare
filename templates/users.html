@@ -2,9 +2,7 @@
 {% block title %}DealsShare - Users{% endblock %}
 
 {% block Admin %}
-<a href="{{ url_for('admin') }}" class="admin-float-btn">
-    ⚙️ Admin
-</a>
+<a href="{{ url_for('admin') }}" class="admin-float-btn">⚙️ Admin</a>
 {% endblock %}
 
 {% block sentence %}Manage all registered users from here{% endblock %}
@@ -38,8 +36,8 @@
 
         <div class="user-card-info">
             <h3>{{ user["first_name"] }} {{ user["last_name"] }}</h3>
-            <p>role: <b>{{ user["role"] }}</p></b>
-            <p>Email: <b>{{ user["email"] }}</p></b>
+            <p>Role: <b>{{ user["role"] }}</b></p>
+            <p>Email: <b>{{ user["email"] }}</b></p>
             <p><b>{{ user["product_count"] }}</b> products shared</p>
             <div class="rating">
                 {% set stars = user["avg_rating"]|round(0, 'floor')|int %}

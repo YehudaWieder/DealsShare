@@ -1,9 +1,12 @@
 import sqlite3
+from typing import List, Dict, Optional
 
 from config import DB_PATH, USERS_PER_PAGE
 
-# --- Utility ---
-def run_query(query, params=(), fetch=False):
+# -------------------------
+# Utility function
+# -------------------------
+def run_query(query: str, params: tuple = (), fetch: bool = False) -> Optional[list]:
     """
     Execute a SQL query with optional parameters and optional fetch.
     """
@@ -12,13 +15,17 @@ def run_query(query, params=(), fetch=False):
         cursor = conn.cursor()
         cursor.execute(query, params)
         conn.commit()
-        
+
         if fetch:
             return cursor.fetchall()
         return None
 
-# --- CRUD Functions ---
-def create_user(email, first_name, last_name, gender, password, role):
+
+# -------------------------
+# CRUD Functions
+# -------------------------
+def create_user(email: str, first_name: str, last_name: str,
+                gender: str, password: str, role: str) -> bool:
     """
     Insert a new user into the database.
     """
@@ -30,7 +37,7 @@ def create_user(email, first_name, last_name, gender, password, role):
     return True
 
 
-def get_user(email):
+def get_user(email: str) -> Optional[Dict]:
     """
     Retrieve a single user by email.
     """
@@ -53,21 +60,22 @@ def get_user(email):
     return None
 
 
-def get_all_users(offset=0, limit=USERS_PER_PAGE, filters: dict = None):
+def get_all_users(offset: int = 0, limit: int = USERS_PER_PAGE,
+                  filters: Optional[dict] = None) -> List[Dict]:
     """
-    Retrieve all users (without password).
+    Retrieve all users (without passwords) with optional search filter.
     """
     filters = filters or {}
     where_clauses = ["1=1"]
     params = []
 
-    # Filter: search query
+    # Search filter
     if search_query := filters.get("search_query"):
         where_clauses.append("(first_name LIKE ? OR last_name LIKE ?)")
         params.extend([f"%{search_query}%", f"%{search_query}%"])
-  
+
     where_sql = " AND ".join(where_clauses)
-    
+
     query = f"""
         SELECT email, first_name, last_name, gender, role
         FROM users
@@ -75,28 +83,29 @@ def get_all_users(offset=0, limit=USERS_PER_PAGE, filters: dict = None):
         LIMIT ? OFFSET ?
     """
     params.extend([limit, offset])
-    
-    result = run_query(query, params, fetch=True)
+
+    result = run_query(query, tuple(params), fetch=True)
     return [
         {
-        "email": row[0],
-        "first_name": row[1],
-        "last_name": row[2],
-        "gender": row[3],
-        "role": row[4],
+            "email": row[0],
+            "first_name": row[1],
+            "last_name": row[2],
+            "gender": row[3],
+            "role": row[4],
         }
         for row in result
     ]
 
 
-def update_user(email, new_email=None, first_name=None,
-                last_name=None, gender=None, password=None, role=None):
+def update_user(email: str, new_email: Optional[str] = None,
+                first_name: Optional[str] = None, last_name: Optional[str] = None,
+                gender: Optional[str] = None, password: Optional[str] = None,
+                role: Optional[str] = None) -> bool:
     """
     Update user fields by email. Only provided fields will be updated.
     """
     fields = []
     params = []
-
 
     if new_email:
         fields.append("email = ?")
@@ -126,7 +135,7 @@ def update_user(email, new_email=None, first_name=None,
     return True
 
 
-def delete_user(email):
+def delete_user(email: str) -> bool:
     """
     Delete a user by email.
     """
@@ -135,31 +144,29 @@ def delete_user(email):
     return True
 
 
-def count_users(filters: dict = None):
+def count_users(filters: Optional[dict] = None) -> int:
     """
-    Count the number of users in the database.
+    Count the number of users in the database with optional search filter.
     """
     filters = filters or {}
     where_clauses = ["1=1"]
     params = []
 
-    # Filter: search query
+    # Search filter
     if search_query := filters.get("search_query"):
         where_clauses.append("(first_name LIKE ? OR last_name LIKE ?)")
         params.extend([f"%{search_query}%", f"%{search_query}%"])
 
-    
     where_sql = " AND ".join(where_clauses)
-    
     query = f"SELECT COUNT(*) FROM users WHERE {where_sql}"
-    return run_query(query, params, fetch=True)[0][0]
+
+    return run_query(query, tuple(params), fetch=True)[0][0]
 
 
-def get_seller_avg_rating(seller_email):
+def get_seller_avg_rating(seller_email: str) -> float:
     """
     Get the average rating of all products created by a specific seller.
     """
     query = "SELECT AVG(rating) FROM ratings WHERE seller_email = ?"
     result = run_query(query, (seller_email,), fetch=True)
     return round(result[0][0], 1) if result and result[0][0] is not None else 0.0
-

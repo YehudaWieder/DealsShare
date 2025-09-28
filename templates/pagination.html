@@ -1,9 +1,14 @@
-<!-- pagination Button -->
+<!-- Pagination Buttons -->
 <div class="pagination">
+
+    <!-- Previous Page -->
     {% if pagination_data["page"] > 1 %}
-        <a href="{{ url_for(request.endpoint, page=pagination_data["page"]-1) }}">&laquo; Previous</a>
+        <a href="{{ url_for(request.endpoint, page=pagination_data['page'] - 1) }}">
+            &laquo; Previous
+        </a>
     {% endif %}
 
+    <!-- Page Numbers -->
     {% for p in range(1, pagination_data["total_pages"] + 1) %}
         {% if p == pagination_data["page"] %}
             <span class="current-page">{{ p }}</span>
@@ -12,7 +17,11 @@
         {% endif %}
     {% endfor %}
 
+    <!-- Next Page -->
     {% if pagination_data["page"] < pagination_data["total_pages"] %}
-        <a href="{{ url_for(request.endpoint, page=pagination_data["page"]+1) }}">Next &raquo;</a>
+        <a href="{{ url_for(request.endpoint, page=pagination_data['page'] + 1) }}">
+            Next &raquo;
+        </a>
     {% endif %}
+
 </div>

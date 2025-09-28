@@ -42,7 +42,7 @@ def create_tables():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ratings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_email TEXT NOT NULL,
+                user_email TEXT,
                 seller_email TEXT NOT NULL,
                 product_id INTEGER,
                 rating INTEGER CHECK(rating BETWEEN 1 AND 5),
