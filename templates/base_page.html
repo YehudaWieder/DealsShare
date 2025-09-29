@@ -17,7 +17,7 @@
     <header>
         <!-- Logo -->
         <a href="{{ url_for('home') }}">
-            <div class="logo">DealsShare</div>
+            <img src="{{ url_for('static', filename='img/logo.webp') }}" class="logo">
         </a>
 
         <!-- Hamburger (Mobile) -->
@@ -52,8 +52,10 @@
 
                 <div class="mega-dropdown">
                     {% for cat in categories %}
+                        {% set image_url = url_for('static', filename='img/' ~ cat['image']) %}
+
                         <a href="{{ url_for('category', category_name=cat['name']) }}"
-                           style="background-image: url('{{ url_for('static', filename='img/' ~ cat['image']) }}');">
+                        style="background-image: url('{{ image_url }}');">
                             <span>{{ cat.name }}</span>
                         </a>
                     {% endfor %}
