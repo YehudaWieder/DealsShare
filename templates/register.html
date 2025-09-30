@@ -4,6 +4,31 @@
 {% block sentence %}Create an account{% endblock %}
 
 {% block content %}
+
+<div class="logos-container">
+    <h2>Register now for all the best deals in one place — limited-time offers.</h2>
+
+    <div class="">
+        <!-- AliExpress -->
+        <img src="{{ url_for('static', filename='img/aliexpress-logo.svg') }}" class="">
+
+        <!-- Etsy -->
+        <img src="{{ url_for('static', filename='img/etsy-logo.svg') }}" class="">
+
+        <!-- Amazon -->
+        <img src="{{ url_for('static', filename='img/amazon-logo.svg') }}" class="">
+
+        <!-- Ebay -->
+        <img src="{{ url_for('static', filename='img/ebay-logo.svg') }}" class="">
+
+        <!-- Shein -->
+        <img src="{{ url_for('static', filename='img/shein-logo.svg') }}" class="">
+
+        <!-- Temu -->
+        <img src="{{ url_for('static', filename='img/temu_Logo.svg') }}" class="">
+    </div>
+</div>
+
 <!-- form container -->
 <div class="container">
     <form action="/register" method="POST" id="passwordForm" class="auth-form">
