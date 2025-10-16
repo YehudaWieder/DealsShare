@@ -355,3 +355,23 @@ def toggle_favorite(user_email: str, product_id: int) -> bool:
             (user_email, product_id)
         )
         return True
+
+
+def get_top_products_by_rating(limit: int = 3) -> List[Dict]:
+    """
+    Retrieve top products sorted by average rating.
+    Returns only product_id and avg_rating.
+    """
+    query = """
+        SELECT product_id, ROUND(AVG(rating), 2) as avg_rating
+        FROM ratings
+        GROUP BY product_id
+        ORDER BY avg_rating DESC
+        LIMIT ?
+    """
+    result = run_query(query, (limit,), fetch=True)
+
+    return [
+        {"product_id": row[0], "avg_rating": row[1]}
+        for row in result
+    ]

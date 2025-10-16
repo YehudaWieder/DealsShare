@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, session, url_for
 
 from routes.admin_routes import (
     calculate_users_pagination_data, delete_user_by_id, edit_user_details,
-    get_all_users_with_stats, is_user_admin
+    get_all_users_with_stats, get_top_products, get_top_sellers, is_user_admin
 )
 from routes.auth_routes import insert_new_user, user_login
 from routes.product_routes import (
@@ -34,6 +34,8 @@ if not os.path.exists(DB_PATH):
 
     import database.seed_data
     Timer(0.2, database.seed_data.seed_data).start()
+    
+    Timer(20, database.seed_data.seed_ratings_and_favorites).start()
     time.sleep(20)
 
 
@@ -462,8 +464,17 @@ def admin():
     num_users = count_users()
     num_products = count_products()
     num_clicks = "---"  # Placeholder for future implementation
+    top_sellers = get_top_sellers()
+    top_products = get_top_products()
 
-    return render_template('admin.html', num_users=num_users, num_products=num_products, num_clicks=num_clicks)
+    return render_template(
+        'admin.html', 
+        num_users=num_users, 
+        num_products=num_products, 
+        num_clicks=num_clicks, 
+        users=top_sellers, 
+        products=top_products, 
+        current_time=current_time)
 
 
 @app.route('/users', methods=['GET', 'POST'])

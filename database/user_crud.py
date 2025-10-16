@@ -170,3 +170,24 @@ def get_seller_avg_rating(seller_email: str) -> float:
     query = "SELECT AVG(rating) FROM ratings WHERE seller_email = ?"
     result = run_query(query, (seller_email,), fetch=True)
     return round(result[0][0], 1) if result and result[0][0] is not None else 0.0
+
+def get_top_sellers_by_rating(limit: int = 3) -> List[Dict]:
+    """
+    Retrieve the top sellers sorted by their average rating.
+    """
+    query = """
+        SELECT seller_email, ROUND(AVG(rating), 2) as avg_rating
+        FROM ratings
+        GROUP BY seller_email
+        ORDER BY avg_rating DESC
+        LIMIT ?
+    """
+    result = run_query(query, (limit,), fetch=True)
+
+    return [
+        {
+            "seller_email": row[0],
+            "avg_rating": row[1]
+        }
+        for row in result
+    ]

@@ -2,12 +2,13 @@ from math import ceil
 from typing import List, Dict, Optional
 
 from config import USERS_PER_PAGE
-from database.product_crud import count_products
+from database.product_crud import count_products, get_product, get_top_products_by_rating
 from database.user_crud import (
     count_users,
     delete_user,
     get_all_users,
     get_seller_avg_rating,
+    get_top_sellers_by_rating,
     get_user,
     update_user
 )
@@ -26,6 +27,46 @@ def get_all_users_with_stats(offset: int, limit: int, filters: Optional[dict] = 
         user["avg_rating"] = get_seller_avg_rating(user["email"])
 
     return users
+
+def get_top_sellers(limit: int = 3) -> List[Dict]:
+    """
+    Retrieve full user data for top-rated sellers along with:
+    - avg_rating (from get_top_sellers_by_rating)
+    - product_count (from count_products)
+    """
+    top_sellers = get_top_sellers_by_rating(limit=limit)
+    sellers = []
+
+    for seller in top_sellers:
+        seller_email = seller["seller_email"]
+
+        user = get_user(seller_email)
+        if user:
+            user["avg_rating"] = get_seller_avg_rating(seller_email=seller_email)
+            user["product_count"] = count_products(seller_email=seller_email)
+
+            sellers.append(user)
+
+    return sellers
+
+def get_top_products(limit: int = 3) -> List[Dict]:
+    """
+    Retrieve full product data for top-rated products including:
+    - avg_rating (from get_top_products_by_rating)
+    """
+    top_products = get_top_products_by_rating(limit=limit)
+    products = []
+
+    for prod in top_products:
+        product_id = prod["product_id"]
+
+        # Get full product info
+        product = get_product(product_id)
+        if product:
+            product["avg_rating"] = prod["avg_rating"]
+            products.append(product)
+
+    return products
 
 
 def edit_user_details(form_data: dict) -> Dict:

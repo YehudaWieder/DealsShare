@@ -20,8 +20,10 @@
                     {% set days_since_publish = (current_time - publish_date).days %}
 
                     <!-- Deal Ending Badge -->
-                    {% if days_since_publish >= 4 %}
+                    {% if days_since_publish >= 7 %}
                         <div class="badge sale-ending">Deal Ending Soon!</div>
+                    {% else %}
+                        <div class="badge days-to-ending">{{ 10 - days_since_publish}} days left</div>
                     {% endif %}
 
                     <!-- Product Info -->

@@ -23,7 +23,7 @@ def save_and_resize_image(file, product_id: int, max_size=(800, 800)) -> Optiona
     Returns the relative path to be stored in the DB, or None if invalid.
     """
     if not file or not allowed_file(file.filename):
-        return "/img/default.png"
+        return None
 
     ext = file.filename.rsplit(".", 1)[1].lower()
     filename = f"product_{product_id}.{ext}"
@@ -64,7 +64,10 @@ def insert_new_product(form_data: dict, file, user_email: str, publish_date: Opt
     discount_price = form_data.get("discount_price")
     link = form_data.get("link")
     publish_date = publish_date or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    ext = file.filename.rsplit(".", 1)[1].lower()
+    try:
+        ext = file.filename.rsplit(".", 1)[1].lower()
+    except:
+        ext = "png"
 
     # Insert product with temporary image_url
     product_id = create_product(
