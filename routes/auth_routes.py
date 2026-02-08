@@ -31,6 +31,10 @@ def insert_new_user(form_data: dict) -> Dict:
     raw_password = form_data.get("password")
     role = form_data.get("role", "user")  # default role
 
+    if password := form_data.get("password"):
+        if len(password) < 6:
+            return {"success": False, "message": "Password must be at least 6 characters long."}
+        
     # Hash password
     password = bcrypt.hashpw(raw_password.encode(), bcrypt.gensalt())
 
