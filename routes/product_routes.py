@@ -55,6 +55,13 @@ def insert_new_product(form_data: dict, file, user_email: str, publish_date: Opt
     Insert a new product with optional uploaded image.
     Returns a dictionary with success status and message.
     """
+
+    # Validate required fields
+    fields = ["name", "features", "description", "category", "regular_price", "discount_price", "link", "free_shipping", "file"]
+    for field in fields:
+        if not form_data.get(field):
+            return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to add product."}
+
     name = form_data.get("name")
     features = form_data.get("features")
     free_shipping = 1 if form_data.get("free_shipping") in ("1", "true", "True", "on") else 0
@@ -99,6 +106,13 @@ def update_product_in_db(form_data: dict, file=None) -> Dict:
     Update an existing product with form data and optional image file.
     Returns a dictionary with success status and message.
     """
+
+    # Validate required fields
+    fields = ["product_id", "name", "features", "description", "category", "regular_price", "discount_price", "link", "free_shipping", "file"]
+    for field in fields:
+        if not form_data.get(field):
+            return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to update product."}
+        
     product_id = form_data.get("product_id")
     existing_product = get_product(product_id)
     if not existing_product:
@@ -158,6 +172,10 @@ def delete_product_by_id(form_data: dict) -> Dict:
     Delete a product by ID.
     Returns a dictionary with success status and message.
     """
+    # Validate required field
+    if not form_data.get("product_id"):
+        return {"success": False, "message": "Product ID is required to delete product."}
+    
     product_id = form_data.get("product_id")
     existing_product = get_product(product_id)
     if not existing_product:

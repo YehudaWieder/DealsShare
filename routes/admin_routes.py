@@ -74,6 +74,13 @@ def edit_user_details(form_data: dict) -> Dict:
     Update an existing user from form data.
     Returns a dict with success status and message.
     """
+
+    # Validate required fields
+    fields = ["email", "first_name", "last_name", "role"]
+    for field in fields:
+        if not form_data.get(field):
+            return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to update user."}
+    
     user_email = form_data.get("email")
     first_name = form_data.get("first_name")
     last_name = form_data.get("last_name")
@@ -101,6 +108,11 @@ def delete_user_by_id(form_data: dict) -> Dict:
     Delete an existing user by email.
     Returns a dict with success status and message.
     """
+
+    # Validate required field
+    if not form_data.get("user_email"):
+        return {"success": False, "message": "User email is required to delete user."}
+    
     user_email = form_data.get("user_email")
 
     existing_user = get_user(user_email)

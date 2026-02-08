@@ -27,6 +27,13 @@ def edit_profile_details(form_data: dict) -> Dict:
     Update an existing user's profile using form data.
     Returns a dict with success status and message.
     """
+
+    # Validate required fields
+    fields = ["user_id", "first_name", "last_name", "email", "current_password"]
+    for field in fields:
+        if not form_data.get(field):
+            return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to update profile."}
+        
     email = form_data.get("user_id")
     first_name = form_data.get("first_name")
     last_name = form_data.get("last_name")
@@ -68,6 +75,11 @@ def delete_profile(form_data: dict) -> Dict:
     Delete a user profile and all related products.
     Returns a dict with success status and message.
     """
+
+    # Validate required field
+    if not form_data.get("email"):
+        return {"success": False, "message": "User email is required to delete profile."}
+    
     user_email = form_data.get("email")
 
     # Check if the user exists

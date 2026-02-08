@@ -18,6 +18,12 @@ def insert_new_user(form_data: dict) -> Dict:
     Insert a new user from form data.
     Returns a dict with success status and message.
     """
+    # Validate required fields
+    fields = ["email", "first_name", "last_name", "gender", "password"]
+    for field in fields:
+        if not form_data.get(field):
+            return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to register user."}
+        
     email = form_data.get("email")
     first_name = form_data.get("first_name")
     last_name = form_data.get("last_name")
@@ -52,6 +58,13 @@ def user_login(form_data: dict) -> Dict:
     - Checks if the password matches the hashed password in DB.
     Returns a dict with success status and message.
     """
+
+    # Validate required fields
+    fields = ["email", "password"]
+    for field in fields:
+        if not form_data.get(field):
+            return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to login."}
+        
     email = form_data.get("email")
     password = form_data.get("password")
 
