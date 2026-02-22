@@ -90,8 +90,8 @@ def home():
 
     new_products = get_products(
         user_email=user_email,
-        offset=pagination_data["offset"],
-        limit=15,
+        offset=0,
+        limit=count_products(),
     )
     two_days_ago = datetime.now() - timedelta(days=2)
     new_products = [product for product in new_products if product["publish_date"] > two_days_ago]

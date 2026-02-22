@@ -57,7 +57,7 @@ def insert_new_product(form_data: dict, file, user_email: str, publish_date: Opt
     """
 
     # Validate required fields
-    fields = ["name", "features", "description", "category", "regular_price", "discount_price", "link", "free_shipping", "file"]
+    fields = ["name", "features", "description", "category", "regular_price", "discount_price", "link", "free_shipping"]
     for field in fields:
         if not form_data.get(field):
             return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to add product."}
