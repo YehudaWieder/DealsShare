@@ -57,7 +57,7 @@ def insert_new_product(form_data: dict, file, user_email: str, publish_date: Opt
     """
 
     # Validate required fields
-    fields = ["name", "features", "description", "category", "regular_price", "discount_price", "link", "free_shipping"]
+    fields = ["name", "features", "description", "category", "regular_price", "discount_price", "link"]
     for field in fields:
         if not form_data.get(field):
             return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to add product."}
@@ -108,7 +108,7 @@ def update_product_in_db(form_data: dict, file=None) -> Dict:
     """
 
     # Validate required fields
-    fields = ["product_id", "name", "features", "description", "category", "regular_price", "discount_price", "link", "free_shipping", "file"]
+    fields = ["product_id", "name", "features", "description", "category", "regular_price", "discount_price", "link"]
     for field in fields:
         if not form_data.get(field):
             return {"success": False, "message": f"{field.replace('_', ' ').title()} is required to update product."}

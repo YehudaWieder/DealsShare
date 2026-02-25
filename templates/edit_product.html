@@ -72,6 +72,11 @@
             <input type="number" id="discount_price" name="discount_price" step="0.01" value="{{ product['discount_price'] }}">
         </div>
 
+        <!--Expiry Date -->
+        <label for="expiry_date">Expiry Date (1-14 days from now)</label>
+        <input type="date" id="expiry_date" name="expiry_date" required 
+            min="{{ min_date }}" max="{{ max_date }}" value="{{ product['expiry_date'] }}">
+
         <!-- Product Link -->
         <label for="link">Product Link</label>
         <input type="url" id="link" name="link" value="{{ product['product_link'] }}" required>

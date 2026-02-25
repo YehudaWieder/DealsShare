@@ -137,10 +137,10 @@ def seed_ratings_and_favorites():
 
     # --- Generate Ratings (at least 20) ---
     ratings_added = 0
-    while ratings_added < 20:
+    while ratings_added < 35:
         user = random.choice(user_emails)
         product_id, seller_email = random.choice(products)
-        rating = random.randint(1, 5)
+        rating = random.randint(3, 5)
 
         cursor.execute("""
             INSERT INTO ratings (user_email, seller_email, product_id, rating)
@@ -153,7 +153,7 @@ def seed_ratings_and_favorites():
 
     # --- Generate Favorites (2 to 7 per user) ---
     for user in user_emails:
-        favorite_count = random.randint(2, 7)
+        favorite_count = random.randint(10, 20)
         random_products = random.sample(products, favorite_count)
 
         for product_id, _ in random_products:

@@ -170,7 +170,9 @@ def add_product():
         return redirect(url_for('login', message="Please login first"))
 
     msg = request.args.get("message")
-
+    min_date = current_time.strftime('%Y-%m-%d')
+    max_date = (current_time + timedelta(days=14)).strftime('%Y-%m-%d')
+    
     if request.method == 'POST':
         form_data = request.form
         file = request.files.get("image")
@@ -180,9 +182,9 @@ def add_product():
         if result["success"]:
             return redirect(url_for('single_product', product_id=result["product_id"], message=result["message"]))
         else:
-            return render_template('add_product.html', message=result["message"])
+            return render_template('add_product.html', message=result["message"], min_date=min_date, max_date=max_date)
 
-    return render_template('add_product.html', message=msg)
+    return render_template('add_product.html', message=msg, min_date=min_date, max_date=max_date)
 
 
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
@@ -194,6 +196,8 @@ def edit_product(product_id):
         return redirect(url_for('login', message="Please login first"))
 
     msg = request.args.get("message")
+    min_date = current_time.strftime('%Y-%m-%d')
+    max_date = (current_time + timedelta(days=14)).strftime('%Y-%m-%d')
 
     user = get_user(session.get("user_email"))
     product = get_product(product_id)
@@ -209,9 +213,9 @@ def edit_product(product_id):
         if result["success"]:
             return redirect(url_for('single_product', product_id=product_id, message=result["message"]))
         else:
-            return render_template('edit_product.html', message=result["message"], product=product, user=user)
+            return render_template('edit_product.html', message=result["message"], product=product, user=user, min_date=min_date, max_date=max_date)
 
-    return render_template('edit_product.html', message=msg, product=product, user=user)
+    return render_template('edit_product.html', message=msg, product=product, user=user, min_date=min_date, max_date=max_date)
 
 
 @app.route('/rating/<int:product_id>', methods=['POST'])
